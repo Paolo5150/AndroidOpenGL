@@ -15,19 +15,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.IntBuffer;
 
+import Application.Camera;
+import Engine.AssetLoader;
+import Engine.Utils;
+import Math.*;
 /**
  * Created by Paolo on 16/06/2018.
  */
 
 public class Shader {
 
-    public Shader(Context context, int vertexRawID, int fragmentRawID)
-    {
+    public Shader(String vertex, String fragment){
 
-        this.context = context;
 
-        vertexSource = getSourceFromRaw(vertexRawID);
-        fragmentSource = getSourceFromRaw(fragmentRawID);
+        vertexSource = getSourceFromRaw(vertex);
+        fragmentSource = getSourceFromRaw(fragment);
 
        // Log.d(GlobalVariables.TAG,"Vertex source:\n" + vertexSource);
 
@@ -48,7 +50,7 @@ public class Shader {
             Log.d(GlobalVariables.TAG,"Error while linking shader:\n" + msg);
         }
 
-        Log.d(GlobalVariables.TAG,"Shader id generated" + getShaderID());
+       // Log.d(GlobalVariables.TAG,"Shader id generated" + getShaderID());
 
     }
 
@@ -62,17 +64,88 @@ public class Shader {
         GLES30.glUseProgram(shaderID);
     }
 
+    public void setMaterial(Material material)
+    {
+
+        if(material.color != null)
+        setVec3("material.color",material.color);
+        if(material.specularColor != null)
+        setVec3("material.specularColor",material.specularColor);
+        setFloat("material.shininess", material.shininess);
+
+
+    }
+
+    public void updateUniforms(float[] modelMatrix, Camera renderingCamera)
+    {
+        float[] mvp = new float[16];
+
+        Matrix.multiplyMM(mvp,0,renderingCamera.getProj(),0,renderingCamera.getViewM(),0);
+        Matrix.multiplyMM(mvp,0,mvp,0,modelMatrix,0);
+
+        setMat4("mvp",mvp);
+        setMat4("model",modelMatrix);
+        setVec3("cameraPosition", renderingCamera.position);
+
+    }
+
     public void setMat4(String uniformName, float[] mat)
     {
         GLES30.glUseProgram(getShaderID());
-        int value = GLES20.glGetUniformLocation(getShaderID(), uniformName);
-        GLES20.glUniformMatrix4fv(value, 1, false, mat, 0);
+        int location = GLES20.glGetUniformLocation(getShaderID(), uniformName);
+        GLES20.glUniformMatrix4fv(location, 1, false, mat, 0);
     }
 
-    private String getSourceFromRaw(int rawID)
+    public void setInt(String uniformName, int value)
+    {
+        GLES30.glUseProgram(getShaderID());
+        int location = GLES20.glGetUniformLocation(getShaderID(), uniformName);
+        GLES20.glUniform1i(location,value);
+    }
+
+    public void setFloat(String uniformName, float value)
+    {
+        GLES30.glUseProgram(getShaderID());
+        int location = GLES20.glGetUniformLocation(getShaderID(), uniformName);
+        GLES20.glUniform1f(location,value);
+    }
+
+    public void setVec4(String uniformName, Vector4f v)
+    {
+        GLES20.glUseProgram(getShaderID());
+        int location = GLES20.glGetUniformLocation(getShaderID(),uniformName);
+        GLES20.glUniform4f(location,v.x,v.y,v.z,v.w);
+
+    }
+
+    public void setVec3(String uniformName, Vector3f v)
+    {
+        GLES30.glUseProgram(getShaderID());
+        int location = GLES20.glGetUniformLocation(getShaderID(),uniformName);
+        GLES30.glUniform3f(location,v.x,v.y,v.z);
+
+    }
+
+    public void setVec4(String uniformName, float x, float y, float z, float w)
+    {
+        GLES20.glUseProgram(getShaderID());
+        int location = GLES20.glGetUniformLocation(getShaderID(),uniformName);
+        GLES20.glUniform4f(location,x,y,z,w);
+
+    }
+
+    public void setVec3(String uniformName, float x, float y ,float z)
+    {
+        GLES20.glUseProgram(getShaderID());
+        int location = GLES20.glGetUniformLocation(getShaderID(),uniformName);
+        GLES20.glUniform3f(location,x,y,z);
+
+    }
+
+    private String getSourceFromRaw(String shaderName)
     {
 
-        InputStream is = context.getResources().openRawResource(rawID);
+        InputStream is = AssetLoader.getInstance().getShaderInputStream(shaderName);
 
         ByteArrayOutputStream baos = null;
 
@@ -130,14 +203,16 @@ public class Shader {
         if(buf[0] == 0)
         {
             String msg = GLES30.glGetShaderInfoLog(id);
-            Log.d(GlobalVariables.TAG,"Error while compiling vertex shader:\n" + msg);
+            Log.d(GlobalVariables.TAG,"Error while compiling fragment shader:\n" + msg);
         }
         return id;
     }
+
+
 
     private int shaderID;
 
     private String vertexSource;
     private String fragmentSource;
-    private Context context;
+
 }

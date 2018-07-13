@@ -1,5 +1,7 @@
 package com.blogspot.androidcanteen.androidopengl;
 
+import android.util.Log;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -20,7 +22,10 @@ public class GlobalVariables
         return  Math.abs(rand.nextLong());
     }
 
-
+    public static void logWithTag(String mesg)
+    {
+        Log.d(GlobalVariables.TAG,mesg);
+    }
     public static final int sizeOf(Object object) throws IOException {
 
         if (object == null)

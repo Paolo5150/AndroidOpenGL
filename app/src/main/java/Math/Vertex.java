@@ -2,86 +2,72 @@ package Math;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-
+import Math.Vector3f;
 /**
  * Created by Paolo on 19/06/2018.
  */
 
 public class Vertex {
 
-    private float x;
-    private float y;
-    private float z;
+    public static final int SIZE = 8;
+    public static final int BYTES = SIZE * Float.BYTES;
+
+    private Vector3f position;
+    private Vector2f textureCoords;
+    private Vector3f normal;
 
     public Vertex()
     {
-        x = 0;
-        y = 0;
-        z = 0;
+        position = new Vector3f();
+        normal = new Vector3f();
+        textureCoords = new Vector2f();
 
     }
 
     public Vertex(float x, float y, float z)
     {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+       position = new Vector3f(x,y,z);
+       normal = new Vector3f();
+       textureCoords = new Vector2f();
     }
 
-    public ByteBuffer toByteBuffer()
+    public Vertex(float x, float y, float z, float xc, float yc)
     {
-
-        ByteBuffer bf = ByteBuffer.allocate(4 * 3);
-        bf.putFloat(x);
-        bf.putFloat(y);
-        bf.putFloat(z);
-        bf.position(0);
-        return bf;
+        position = new Vector3f(x,y,z);
+        textureCoords = new Vector2f(xc,yc);
+        normal = new Vector3f();
     }
 
-    public FloatBuffer toFloatBuffer()
+
+    public Vertex(float x, float y, float z, float xc, float yc, float nx, float ny, float nz)
     {
-
-        FloatBuffer fb = FloatBuffer.allocate(3);
-        fb.put(x);
-        fb.put(y);
-        fb.put(z);
-        fb.position(0);
-        return fb;
-    }
-    public float[] toFloatArray()
-    {
-        float[] ar = new float[3];
-        ar[0] = x;
-        ar[1] = y;
-        ar[2] = z;
-        return  ar;
-    }
-
-    public float getX() {
-        return x;
-    }
-
-    public void setX(float x) {
-        this.x = x;
-    }
-
-    public float getY() {
-        return y;
-    }
-
-    public void setY(float y) {
-        this.y = y;
-    }
-
-    public float getZ() {
-        return z;
-    }
-
-    public void setZ(float z) {
-        this.z = z;
+        position = new Vector3f(x,y,z);
+        textureCoords = new Vector2f(xc,yc);
+        normal = new Vector3f(nx,ny,nz);
     }
 
 
+    public Vector3f getPosition() {
+        return position;
+    }
 
+    public void setPosition(Vector3f position) {
+        this.position = position;
+    }
+
+    public Vector2f getTextureCoords() {
+        return textureCoords;
+    }
+
+    public void setTextureCoords(Vector2f textureCoords) {
+        this.textureCoords = textureCoords;
+    }
+
+    public Vector3f getNormal() {
+        return normal;
+    }
+
+    public void setNormal(Vector3f normal) {
+        this.normal = normal;
+    }
 }

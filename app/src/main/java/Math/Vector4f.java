@@ -6,10 +6,10 @@ package Math;
 
 public class Vector4f {
 
-    private float x;
-    private float y;
-    private float z;
-    private float w;
+    public float x;
+    public float y;
+    public float z;
+    public float w;
 
     public Vector4f(float x, float y, float z, float w)
     {

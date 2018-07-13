@@ -10,6 +10,59 @@ public class Vector3f {
     public float y;
     public float z;
 
+    public static Vector3f add(Vector3f v1, Vector3f v2)
+    {
+        Vector3f res = new Vector3f();
+        res.x = v1.x + v2.x;
+        res.y = v1.y + v2.y;
+        res.z = v1.z + v2.z;
+        return res;
+
+    }
+
+    public static Vector3f subtract(Vector3f v1, Vector3f v2)
+    {
+        Vector3f res = new Vector3f();
+        res.x = v1.x - v2.x;
+        res.y = v1.y - v2.y;
+        res.z = v1.z - v2.z;
+        return res;
+
+    }
+
+    public static Vector3f multiply(Vector3f v1, float scalar)
+    {
+        Vector3f res = new Vector3f();
+        res.x = v1.x * scalar;
+        res.y = v1.y * scalar;
+        res.z = v1.z * scalar;
+        return res;
+
+    }
+
+    public static Vector3f project(Vector3f v, Vector3f onTo)
+    {
+        Vector3f res = new Vector3f();
+
+        float dot = v.dot(onTo);
+        float ontoLength = onTo.length();
+        float div = dot / (ontoLength * ontoLength);
+        res = Vector3f.multiply(onTo,div);
+        return res;
+    }
+
+    public static Vector3f divide(Vector3f v1, float scalar)
+    {
+        Vector3f res = new Vector3f();
+        res.x = v1.x / scalar;
+        res.y = v1.y / scalar;
+        res.z = v1.z / scalar;
+        return res;
+
+    }
+
+
+
     public Vector3f(float x, float y, float z)
     {
         this.x = x;
@@ -36,7 +89,7 @@ public class Vector3f {
         z -= v.z;
     }
 
-    public float dor(Vector3f v)
+    public float dot(Vector3f v)
     {
         return (x * v.x) + (y * v.y) + (z * v.z);
     }
@@ -50,9 +103,20 @@ public class Vector3f {
         return r;
     }
 
-    public double length()
+    public float length()
     {
-        return Math.sqrt(x*x + y*y + z*z);
+
+        return (float)Math.sqrt(x*x + y*y + z*z);
+    }
+
+    public void normalizeThis()
+    {
+        float l = length();
+        x /= l;
+        y /= l;
+        z/=l;
+
+
     }
 
     public void multiply(float f)
@@ -67,5 +131,13 @@ public class Vector3f {
         x /=f;
         y /=f;
         z /=f;
+    }
+
+    public String getInfo()
+    {
+        String s = "";
+        s += "X: " + x + ", Y: " + y + ", Z " + z +", M: " + length();
+        return s;
+
     }
 }

@@ -1,8 +1,7 @@
 package Application;
 
 import android.app.Activity;
-import android.opengl.GLES30;
-import android.opengl.Matrix;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
@@ -10,123 +9,97 @@ import android.util.Log;
 import com.blogspot.androidcanteen.androidopengl.GlobalVariables;
 import com.blogspot.androidcanteen.androidopengl.R;
 
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-
-import javax.microedition.khronos.opengles.GL;
-
+import Components.MeshRenderer;
+import Engine.Input;
+import Engine.PreMadeMeshes;
+import Engine.Scene;
+import Engine.Utils;
+import Math.Vector2f;
+import Math.Vector3f;
+import Rendering.LightShader;
+import Rendering.Lighting;
+import Rendering.Material;
 import Rendering.Screen;
 import Rendering.Shader;
-import Math.Vector3f;
-import Math.Vertex;
-import Rendering.ShaderManager;
+import Rendering.Texture;
+import Engine.GameObject;
+import Scenes.TestScene;
 
 /**
  * Created by Paolo on 25/06/2018.
  */
 
-public class Application {
+public class Application implements IInteractionListener{
 
     private Activity activity;
+    public static boolean running;
 
 
-    Camera cam;
-    Shader testShader;
-    IntBuffer VAO;
-    IntBuffer VBO;
 
-    float[] model;
-    float angle;
+    public static Scene scene = new TestScene();
 
-    public Application(Activity a)
+
+    private static Application instance;
+
+    public static Application getInstance()
     {
+        if(instance == null)
+            instance = new Application();
 
-        activity = a;
+        running = true;
 
-
+        return  instance;
+    }
+    private Application()
+    {
+        Input.getInstance().addInteractionListener(this);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void Start()
     {
 
-        cam = new Camera();
-        cam.setPerspective(60,(float) Screen.SCREEN_WIDTH / Screen.SCREEN_HEIGHT,0.1f,1000.0f);
-        cam.position.z = 5;
+
+        scene.start();
 
 
-
-
-        Vertex[] vertices = {new Vertex(-0.5f,-0.5f,0.f),
-                new Vertex(0.5f,-0.5f,0.0f),new Vertex(0.0f, 0.5f, 0.0f)};
-
-        float[] verts = {-0.5f,-0.5f,0.0f,
-                0.5f,-0.5f,0.0f,
-                0.0f, 0.5f, 0.0f};
-        model = new float[16];
-        Matrix.setIdentityM(model,0);
-
-
-
-        VAO = IntBuffer.allocate(1);
-        VBO = IntBuffer.allocate(1);
-
-
-        GLES30.glGenVertexArrays(1,VAO);
-        GLES30.glGenBuffers(1,VBO);
-
-
-        GLES30.glBindVertexArray(VAO.get(0));
-        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, VBO.get(0));
-
-        FloatBuffer point = FloatBuffer.allocate(9);
-
-        point.put( vertices[0].toFloatBuffer());
-        point.put( vertices[1].toFloatBuffer());
-        point.put( vertices[2].toFloatBuffer());
-        point.position(0);
-
-
-        GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER ,9 * Float.BYTES,point,GLES30.GL_STATIC_DRAW );
-
-
-
-        GLES30.glEnableVertexAttribArray(0);
-        GLES30.glVertexAttribPointer(0,3,GLES30.GL_FLOAT,false,3 * Float.BYTES,0);
     }
 
     public void Update()
     {
-        cam.Update();
 
-        Matrix.setIdentityM(model,0);
-
-
-        Matrix.rotateM(model,0,angle,0,1,0);
-
-        float[] mvp = new float[16];
+        scene.update();
 
 
-        Matrix.multiplyMM(mvp,0,cam.getProj(),0,cam.getViewM(),0);
-        Matrix.multiplyMM(mvp,0,mvp,0,model,0);
 
-        angle += 1f;
-        ShaderManager.GetShaderByName("Basic").setMat4("matrix",mvp);
+
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void Render()
     {
 
-        GLES30.glBindVertexArray(VAO.get(0));
-        ShaderManager.GetShaderByName("Basic").activateShader();
+    scene.render();
 
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLES,0,3);
-
+    }
 
 
+    @Override
+    public void OnInteract() {
 
 
+        float centerX =  Screen.SCREEN_WIDTH/2.0f;
+        float centerY = Screen.SCREEN_HEIGHT/2.0f;
+
+        Vector2f toCenter = new Vector2f();
+        toCenter.x = centerX - Input.getInstance().getTouchPosition().x;
+        toCenter.y = centerY - Input.getInstance().getTouchPosition().y;
+
+        toCenter.normalizeThis();
+
+        Lighting.directionalLight.rotation.x = toCenter.x;
+        Lighting.directionalLight.rotation.y = -toCenter.y;
 
 
     }
