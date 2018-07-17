@@ -56,11 +56,13 @@ public class TestScene extends Scene implements IInteractionListener {
         cam.getComponentByType("Camera",Camera.class).setPerspective(60,(float) Screen.SCREEN_WIDTH / Screen.SCREEN_HEIGHT,0.1f,1000.0f);
         cam.transform.position.z = 8;
 
+
         cam2 = new GameObject("Camera_Second");
         cam2.addComponent(new Camera("Camera_Second",cam2));
         cam2.getComponentByType("Camera",Camera.class).setPerspective(60,(float) Screen.SCREEN_WIDTH / Screen.SCREEN_HEIGHT,0.1f,1000.0f);
         cam2.transform.position.z = 4;
-        cam2.getComponentByType("Camera",Camera.class).depth = -1;
+      
+
 
 
 
@@ -70,15 +72,16 @@ public class TestScene extends Scene implements IInteractionListener {
         //sphere.addComponent(new CharizardBehavior(sphere));
         sphere.addComponent(new MeshRenderer(PreMadeMeshes.getMeshByName("Sphere"), MaterialManager.getMaterialByName("Material_BumpyRock"), sphere));
 
-        sphere.transform.scale = new Vector3f(0.8f,0.8f,0.8f);
-      // sphere.addComponent(new PhysicsBody(sphere));
+        sphere.transform.scale = new Vector3f(0.3f,0.3f,0.3f);
 
 
 
-        quad = new GameObject("OtherSphere");
+
+        quad = new GameObject("Quad");
        // quad.addComponent(new CharizardBehavior(quad));
         quad.addComponent(new MeshRenderer(PreMadeMeshes.getMeshByName("Quad"),MaterialManager.getMaterialByName("Material_BumpyWall"), quad));
         quad.getComponentByType("Renderer", Renderer.class).setRenderingCamera(cam2.getComponentByType("Camera",Camera.class));
+
 
 
 
@@ -104,6 +107,7 @@ public class TestScene extends Scene implements IInteractionListener {
 
 
         sphere.transform.position.z +=0.05f;
+       // quad.transform.position.y -=0.01f;
 
 
     }
@@ -116,9 +120,7 @@ public class TestScene extends Scene implements IInteractionListener {
         //super.render();
 
 
-        sphere.render();
-       // GLES30.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
-        quad.render();
+
 
 
 

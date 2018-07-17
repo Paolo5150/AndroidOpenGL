@@ -19,7 +19,7 @@ public class RenderingEngine {
 
     private static RenderingEngine instance;
     public static int currentShaderID;
-    private static  HashMap<Material,ArrayList<Renderer>> allRenderers;
+    private static  HashMap<Integer, HashMap<Material,ArrayList<Renderer>>> allRenderers;
 
     public static RenderingEngine getInstance()
     {
@@ -44,7 +44,7 @@ public class RenderingEngine {
 
     public void addToBatch(Renderer rend)
     {
-        if(allRenderers.containsKey(rend.getMaterial()))
+       /* if(allRenderers.containsKey(rend.getMaterial()))
         {
             allRenderers.get(rend.getMaterial()).add(rend);
         }
@@ -53,45 +53,78 @@ public class RenderingEngine {
             ArrayList<Renderer> l = new ArrayList<>();
             l.add(rend);
             allRenderers.put(rend.getMaterial(),l);
-        }
+        }*/
+       Camera c = rend.getRenderingCamera();
+       if(allRenderers.containsKey(c.depth))
+       {
+            HashMap<Material, ArrayList<Renderer>> map = allRenderers.get(c.depth);
+
+             if(map.containsKey(rend.getMaterial()))
+            {
+                map.get(rend.getMaterial()).add(rend);
+              //  GlobalVariables.logWithTag("Added " + rend.getGameObject().getName());
+            }
+            else
+            {
+                ArrayList<Renderer> l = new ArrayList<>();
+                l.add(rend);
+                map.put(rend.getMaterial(),l);
+             //   GlobalVariables.logWithTag("Created new list and Added " + rend.getGameObject().getName());
+            }
+       }
+       else
+       {
+           HashMap<Material, ArrayList<Renderer>> map = new HashMap<>();
+           ArrayList<Renderer> l = new ArrayList<>();
+           l.add(rend);
+           map.put(rend.getMaterial(),l);
+           allRenderers.put(c.depth,map);
+         //  GlobalVariables.logWithTag("Created new map and Added " + rend.getGameObject().getName());
+       }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-    public void renderBatch()
-    {
-        for(Material m : allRenderers.keySet())
-        {
-        m.getShader().activateShader();
-        m.activateTextures();
+    public void renderBatch() {
+
+        for (Integer i : allRenderers.keySet()) {
+            GLES30.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
+
+            HashMap<Material, ArrayList<Renderer>> map = allRenderers.get(i);
+
+            for (Material m : map.keySet()) {
+                m.getShader().activateShader();
+                m.activateTextures();
 
 
-        for(Renderer r : allRenderers.get(m))
-            {
-                if(r.isActive()) {
-                    m.getShader().updateMatrices(r.transform.getTransformation(), r.getRenderingCamera());
-                    m.updateVec3("color",r.colorOverride); //I have to change this somehow
-                    m.updateMaterialPropertiesToShader();
-                    r.RenderUnactivated();
-                   // GlobalVariables.logWithTag("Rendered " + r.getGameObject().getName());
+                for (Renderer r : map.get(m)) {
+                    if (r.isActive()) {
+                        m.getShader().updateMatrices(r.transform.getTransformation(), r.getRenderingCamera());
+                        m.updateVec3("color", r.colorOverride); //I have to change this somehow
+                        m.updateMaterialPropertiesToShader();
+                        r.RenderUnactivated();
+                        // GlobalVariables.logWithTag("Rendered " + r.getGameObject().getName());
+                    }
                 }
+
+
             }
 
 
-
         }
-
         clearMap();
     }
 
     private void clearMap()
     {
         ArrayList<Renderer> list;
+        for (Integer i : allRenderers.keySet()) {
 
-        for(Material m : allRenderers.keySet())
-        {
-           list = allRenderers.get(m);
-           list.clear();
+            HashMap<Material, ArrayList<Renderer>> map = allRenderers.get(i);
+            for (Material m : map.keySet()) {
+                list = map.get(m);
+                list.clear();
 
+            }
         }
     }
 
@@ -113,7 +146,7 @@ public class RenderingEngine {
 
 
         Render(Application.getCurrentScene());
-       // RenderingEngine.getInstance().renderBatch();
+       RenderingEngine.getInstance().renderBatch();
 
 
     }

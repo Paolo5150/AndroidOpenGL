@@ -24,8 +24,8 @@ public class Camera extends Component {
     public static Camera activeCamera;
     private static HashMap<String, Camera> allCameras = new HashMap<String,Camera>();
 
-    public static float currentDepth = 0;
-    public float depth;
+
+    public int depth;
 
     public Vector3f target;
     public Vector3f up;

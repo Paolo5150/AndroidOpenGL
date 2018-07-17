@@ -59,11 +59,7 @@ public abstract class Renderer extends Component{
     public void Render()
     {
         //renderingCamera = Camera.activeCamera;
-        //Test
-        if(renderingCamera.depth > Camera.currentDepth)
-            GLES30.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
 
-        Camera.currentDepth = renderingCamera.depth;
 
         //Check Layer
         for(Integer i : renderingCamera.cullingMask)
