@@ -1,31 +1,33 @@
 package Rendering;
 
-import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.opengl.Matrix;
-import android.os.Debug;
 import android.util.Log;
 
 import com.blogspot.androidcanteen.androidopengl.GlobalVariables;
-import com.blogspot.androidcanteen.androidopengl.R;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.IntBuffer;
 
-import Application.Camera;
 import Engine.AssetLoader;
+import Engine.Entity;
 import Engine.Utils;
 import Math.*;
 /**
  * Created by Paolo on 16/06/2018.
  */
 
-public class Shader {
+public class Shader extends Entity{
 
-    public Shader(String vertex, String fragment){
+    private int shaderID;
+
+    private String vertexSource;
+    private String fragmentSource;
+
+    public Shader(String shaderName,String vertex, String fragment){
+        super(shaderName,"Shader");
 
 
         vertexSource = getSourceFromRaw(vertex);
@@ -47,7 +49,7 @@ public class Shader {
         if(buf[0] == 0)
         {
             String msg = GLES30.glGetProgramInfoLog(shaderID);
-            Log.d(GlobalVariables.TAG,"Error while linking shader:\n" + msg);
+            Log.d(GlobalVariables.TAG,"Error while linking shader " + shaderName + ":\n" + msg);
         }
 
        // Log.d(GlobalVariables.TAG,"Shader id generated" + getShaderID());
@@ -61,22 +63,17 @@ public class Shader {
 
     public void activateShader()
     {
-        GLES30.glUseProgram(shaderID);
+
+        if(RenderingEngine.currentShaderID != getShaderID()) {
+            //GlobalVariables.logWithTag("Activated shader " + getName());
+            RenderingEngine.currentShaderID = shaderID;
+            GLES30.glUseProgram(shaderID);
+        }
     }
 
-    public void setMaterial(Material material)
-    {
-
-        if(material.color != null)
-        setVec3("material.color",material.color);
-        if(material.specularColor != null)
-        setVec3("material.specularColor",material.specularColor);
-        setFloat("material.shininess", material.shininess);
 
 
-    }
-
-    public void updateUniforms(float[] modelMatrix, Camera renderingCamera)
+    public void updateMatrices(float[] modelMatrix, Camera renderingCamera)
     {
         float[] mvp = new float[16];
 
@@ -85,7 +82,9 @@ public class Shader {
 
         setMat4("mvp",mvp);
         setMat4("model",modelMatrix);
-        setVec3("cameraPosition", renderingCamera.position);
+        setMat4("view",renderingCamera.getViewM());
+        setMat4("projection",renderingCamera.getProj());
+
 
     }
 
@@ -134,12 +133,27 @@ public class Shader {
 
     }
 
+
     public void setVec3(String uniformName, float x, float y ,float z)
     {
         GLES20.glUseProgram(getShaderID());
         int location = GLES20.glGetUniformLocation(getShaderID(),uniformName);
         GLES20.glUniform3f(location,x,y,z);
 
+    }
+
+    public void setVec2(String uniformName, float x, float y)
+    {
+        GLES20.glUseProgram(getShaderID());
+        int location = GLES20.glGetUniformLocation(getShaderID(),uniformName);
+        GLES20.glUniform2f(location,x,y);
+    }
+
+    public void setVec2(String uniformName, Vector2f v)
+    {
+        GLES20.glUseProgram(getShaderID());
+        int location = GLES20.glGetUniformLocation(getShaderID(),uniformName);
+        GLES20.glUniform2f(location,v.x,v.y);
     }
 
     private String getSourceFromRaw(String shaderName)
@@ -209,10 +223,12 @@ public class Shader {
     }
 
 
+    @Override
+    protected void GenerateID() {
+        ID = "Shader" + name + System.currentTimeMillis() + Utils.GetRandomFloat();
+    }
 
-    private int shaderID;
 
-    private String vertexSource;
-    private String fragmentSource;
+
 
 }

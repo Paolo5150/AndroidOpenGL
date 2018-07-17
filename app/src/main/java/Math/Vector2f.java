@@ -23,6 +23,14 @@ public class Vector2f {
         x = y = 0;
     }
 
+    public static Vector2f subtract(Vector2f a, Vector2f b)
+    {
+        Vector2f r = new Vector2f();
+        r.x = a.x - b.x;
+        r.y = a.y - b.y;
+        return r;
+    }
+
     public void add(Vector2f v)
     {
         x += v.x;

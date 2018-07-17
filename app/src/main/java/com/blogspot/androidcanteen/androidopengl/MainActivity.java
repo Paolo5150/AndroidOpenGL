@@ -43,9 +43,9 @@ public class MainActivity extends AppCompatActivity {
         Utils.Initialize(getResources(),this);
        surview = (GLSurfaceView) findViewById(R.id.surview);
        surview.setEGLContextClientVersion(3);
-       surview.setPreserveEGLContextOnPause(true);
-        surview.setRenderer(MainRenderer.getInstance());
 
+        surview.setRenderer(MainRenderer.getInstance());
+        surview.setPreserveEGLContextOnPause(true);
 
 
     }
@@ -55,12 +55,7 @@ public class MainActivity extends AppCompatActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        // Checks the orientation of the screen
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show();
-        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
-            Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
-        }
+
     }
 
     @Override
@@ -98,13 +93,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-     //   surview.onPause();
+
+        surview.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-     //   surview.onResume();
+        surview.onResume();
     }
 
     @Override

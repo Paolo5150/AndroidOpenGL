@@ -55,6 +55,79 @@ public class PreMadeMeshes {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+    public static Mesh getGridMesh(int size)
+    {
+        ArrayList<Vertex> vertices = new ArrayList<>();
+        ArrayList<Integer> indices = new ArrayList<>();
+
+
+        for (float z = 0; z < size; z++)
+        {
+            for (float x = 0; x < size; x++)
+            {
+
+                Vertex v = new Vertex();
+                v.getPosition().x = x;
+                v.getPosition().y = 0;
+                v.getPosition().z = -z;
+
+                //Temp normals
+                v.getNormal().x = 0.0f;
+                v.getNormal().y = 0.0f;
+                v.getNormal().z = 0.0f;
+
+                v.getTextureCoords().x = x / size;
+                v.getTextureCoords().y = z / size;
+
+
+                vertices.add(v);
+
+            }
+        }
+
+        int indexIndex = 0;
+        int counter = 0;
+        for (int i = 0; i < vertices.size(); i++)
+        {
+
+            if (counter >= size - 1)
+            {
+                counter = 0;
+                continue;
+            }
+
+            if (i >= vertices.size() - size - 1)
+                break;
+
+            //Face 1
+
+            indices.add(i);
+            indices.add(i + 1);
+            indices.add(i + size + 1);
+
+            //Face 2
+            indices.add(i + size + 1);
+            indices.add(i + size);
+            indices.add(i);
+
+
+            counter++;
+
+        }
+
+        int[] inds = new int[indices.size()];
+
+        for(int i=0; i< inds.length; i++)
+            inds[i] = indices.get(i);
+
+        Vertex[] verts = new Vertex[vertices.size()];
+        vertices.toArray(verts);
+
+
+        return new Mesh(verts,inds,false);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     private static Mesh createCube()
     {
         //Vertices are duplicated for the cube, basically making indices rendering useless. Necessary for correct normals

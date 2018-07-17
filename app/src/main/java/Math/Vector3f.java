@@ -119,11 +119,12 @@ public class Vector3f {
 
     }
 
-    public void multiply(float f)
+    public Vector3f multiply(float f)
     {
         x *=f;
         y *=f;
         z *=f;
+        return this;
     }
 
     public void divide(float f)

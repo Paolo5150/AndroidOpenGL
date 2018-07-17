@@ -49,6 +49,11 @@ public class Utils {
         return rand.nextFloat();
     }
 
+    public static int GetRandomIntRange(int max)
+    {
+        return rand.nextInt(max);
+    }
+
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public static Mesh loadOBJ(String modelName)  {

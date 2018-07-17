@@ -1,33 +1,24 @@
 package Rendering;
 
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.opengl.GLUtils;
-import android.util.Log;
-
-import Engine.Utils;
-
-import com.blogspot.androidcanteen.androidopengl.GlobalVariables;
-import com.blogspot.androidcanteen.androidopengl.R;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 
-import javax.microedition.khronos.opengles.GL;
+import Engine.AssetLoader;
+import Engine.Entity;
 
 /**
  * Created by Paolo on 25/06/2018.
  */
 
-public class Texture {
+public class Texture extends Entity {
+
 
     private int[] textureID;
 
@@ -53,20 +44,28 @@ public class Texture {
         this.height = height;
     }
 
+
     private int width;
     private int height;
+    private String uniformName;
 
-    public Texture(int resourceID)
+
+
+    @RequiresApi(api = Build.VERSION_CODES.FROYO)
+    public Texture(String textureFileName, String uniformName)
     {
-        Bitmap bmp = BitmapFactory.decodeResource(Utils.resources,resourceID);
-        generateTexture(bmp);
-    }
-    public Texture(Bitmap bitmap)
-    {
-    generateTexture(bitmap);
+        super(textureFileName,"Texture");
+        Bitmap bitmap = AssetLoader.getInstance().getTextureBmp(textureFileName);
+
+
+        this.uniformName = uniformName;
+        generateTexture(bitmap);
 
     }
 
+
+
+    @RequiresApi(api = Build.VERSION_CODES.FROYO)
     private void generateTexture(Bitmap bitmap)
     {
         textureID = new int[1];
@@ -86,7 +85,8 @@ public class Texture {
 
 
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
-        //GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
+
+        GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
         bitmap.recycle();
 
     }
@@ -97,5 +97,7 @@ public class Texture {
     }
 
 
-    
+    public String getUniformName() {
+        return uniformName;
+    }
 }

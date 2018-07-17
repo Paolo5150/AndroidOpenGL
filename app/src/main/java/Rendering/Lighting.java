@@ -8,7 +8,7 @@ public class Lighting {
                                                 new Vector3f(0,0,0),
                                                 new Vector3f(0,-1,-1));
 
-        ambientLight = new Vector3f(0.0f,0.0f,0.0f);
+        ambientLight = new Vector3f(0.2f,0.2f,0.2f);
 
     }
 

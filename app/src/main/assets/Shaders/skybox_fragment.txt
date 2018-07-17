@@ -1,0 +1,28 @@
+#version 300 es
+precision highp float;
+
+struct Material
+{
+    vec3 color;
+};
+
+
+out vec4 col;
+
+in vec3 coords;
+
+
+uniform Material material;
+
+uniform samplerCube sky;
+uniform samplerCube sky2;
+
+
+void main()
+{
+
+    vec3 texCol = texture(sky2,coords).xyz;
+    col = vec4(texCol,1.0);
+    //col = vec4(1,0,0,1);
+
+}

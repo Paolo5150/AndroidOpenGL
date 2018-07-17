@@ -14,4 +14,10 @@ public abstract class Behavior extends Component{
 
 
     }
+
+    @Override
+    protected void setComponentType()
+    {
+        componentType = "Behavior";
+    }
 }

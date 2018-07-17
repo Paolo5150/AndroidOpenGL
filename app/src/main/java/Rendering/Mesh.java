@@ -17,25 +17,65 @@ import Math.*;
 
 public class Mesh {
 
+    private Vertex[] vertices;
+    private int[] indices;
+
+    private IntBuffer VBO;
+    private IntBuffer IBO;
+    private IntBuffer VAO;
+
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public Mesh(Vertex[] vertices, int[] indices)
     {
+        VAO = IntBuffer.allocate(1);
+        VBO = IntBuffer.allocate(1);
+        IBO = IntBuffer.allocate(1);
+        GLES30.glGenVertexArrays(1,VAO);
+        GLES30.glGenBuffers(1,VBO);
+        GLES30.glGenBuffers(1,IBO);
+        Initialize(vertices, indices,true);
 
-        Initialize(vertices, indices);
+    }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+    public Mesh(Vertex[] vertices, int[] indices, boolean normalize)
+    {
+        VAO = IntBuffer.allocate(1);
+        VBO = IntBuffer.allocate(1);
+        IBO = IntBuffer.allocate(1);
+        GLES30.glGenVertexArrays(1,VAO);
+        GLES30.glGenBuffers(1,VBO);
+        GLES30.glGenBuffers(1,IBO);
+        Initialize(vertices, indices,normalize);
+
+    }
+
+    public Vertex[] getVertices() {
+        return vertices;
+    }
+
+    public void setVertices(Vertex[] vertices) {
+        this.vertices = vertices;
+    }
+
+    public IntBuffer getIBO() {
+        return IBO;
+    }
+
+    public void setIBO(IntBuffer IBO) {
+        this.IBO = IBO;
     }
 
     @Override
     public void finalize()
     {
-     //  GLES20.glDeleteBuffers(GLES20.GL_ARRAY_BUFFER,VBO);
-     //  GLES20.glDeleteBuffers(GLES20.GL_ELEMENT_ARRAY_BUFFER,IBO);
+     cleanMemory();
     }
 
     public void cleanMemory()
     {
-        GLES20.glDeleteBuffers(GLES20.GL_ARRAY_BUFFER,VBO);
-        GLES20.glDeleteBuffers(GLES20.GL_ELEMENT_ARRAY_BUFFER,IBO);
+        GLES20.glDeleteBuffers(1,VBO);
+        GLES20.glDeleteBuffers(1,IBO);
     }
 
     public void NormalizeMesh()
@@ -85,9 +125,10 @@ public class Mesh {
         return center;
     }
 
-    private void CalculateNormals(Vertex[] vertices, int[] indices) {
+    public void CalculateNormals() {
 
 
+        //Normals
         for(int i=0; i<indices.length; i+=3)
         {
             int i0 = indices[i];
@@ -107,30 +148,48 @@ public class Mesh {
             vertices[i1].setNormal(cross);
             vertices[i2].setNormal(cross);
 
+            //Tangent
+            //Tangent
+            Vector3f deltaPos1 = Vector3f.subtract(vertices[i1].getPosition(),vertices[i0].getPosition());
+            Vector3f deltaPos2 = Vector3f.subtract(vertices[i2].getPosition(),vertices[i0].getPosition());
+
+
+            Vector2f deltaUV1 = Vector2f.subtract(vertices[i1].getTextureCoords(),vertices[i0].getTextureCoords());
+            Vector2f deltaUV2 = Vector2f.subtract(vertices[i2].getTextureCoords(),vertices[i0].getTextureCoords());
+
+            float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+
+            vertices[i0].setTangent(  Vector3f.multiply(Vector3f.subtract(Vector3f.multiply(deltaPos1,deltaUV2.y),Vector3f.multiply(deltaPos2,deltaUV1.y)),r  ));// = glm::normalize((deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y)*r);
+            vertices[i1].setTangent(  Vector3f.multiply(Vector3f.subtract(Vector3f.multiply(deltaPos1,deltaUV2.y),Vector3f.multiply(deltaPos2,deltaUV1.y)),r  ));
+            vertices[i2].setTangent(  Vector3f.multiply(Vector3f.subtract(Vector3f.multiply(deltaPos1,deltaUV2.y),Vector3f.multiply(deltaPos2,deltaUV1.y)),r  ));
+
+            vertices[i0].setBiTangent(  Vector3f.multiply(Vector3f.subtract(Vector3f.multiply(deltaPos2,deltaUV1.x),Vector3f.multiply(deltaPos1,deltaUV2.x)),r  ));
+            vertices[i1].setBiTangent(  Vector3f.multiply(Vector3f.subtract(Vector3f.multiply(deltaPos2,deltaUV1.x),Vector3f.multiply(deltaPos1,deltaUV2.x)),r  ));
+            vertices[i2].setBiTangent(  Vector3f.multiply(Vector3f.subtract(Vector3f.multiply(deltaPos2,deltaUV1.x),Vector3f.multiply(deltaPos1,deltaUV2.x)),r  ));
+
+
         }
+
+
 
 
     }
 
 
+
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-    private void Initialize(Vertex[] vertices, int[] indices)
+     void Initialize(Vertex[] vertices, int[] indices, boolean normalize)
     {
         this.vertices = vertices;
-        this.indices = IntBuffer.wrap(indices);
-        this.indices.position(0);
 
-        NormalizeMesh();
-        CalculateNormals(vertices, indices);
-
-        VAO = IntBuffer.allocate(1);
-        VBO = IntBuffer.allocate(1);
-        IBO = IntBuffer.allocate(1);
+        this.indices = indices;
 
 
-        GLES30.glGenVertexArrays(1,VAO);
-        GLES30.glGenBuffers(1,VBO);
-        GLES30.glGenBuffers(1,IBO);
+        if(normalize)
+         NormalizeMesh();
+
+       CalculateNormals();
+
 
         GLES30.glBindVertexArray(VAO.get(0));
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, VBO.get(0));
@@ -149,6 +208,12 @@ public class Mesh {
             buffer.put(vertices[i].getNormal().x);
             buffer.put(vertices[i].getNormal().y);
             buffer.put(vertices[i].getNormal().z);
+            buffer.put(vertices[i].getTangent().x);
+            buffer.put(vertices[i].getTangent().y);
+            buffer.put(vertices[i].getTangent().z);
+            buffer.put(vertices[i].getBiTangent().x);
+            buffer.put(vertices[i].getBiTangent().y);
+            buffer.put(vertices[i].getBiTangent().z);
         }
 
 
@@ -156,7 +221,8 @@ public class Mesh {
        // buffer.flip();
 
         GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER ,vertices.length * Vertex.BYTES,buffer,GLES30.GL_STATIC_DRAW );
-        GLES30.glBufferData(GLES30.GL_ELEMENT_ARRAY_BUFFER,indices.length * Integer.BYTES,this.indices,GLES30.GL_STATIC_DRAW);
+        IntBuffer buf = IntBuffer.wrap(indices);
+        GLES30.glBufferData(GLES30.GL_ELEMENT_ARRAY_BUFFER,indices.length * Integer.BYTES,buf,GLES30.GL_STATIC_DRAW);
 
         //Vertex position
         GLES30.glEnableVertexAttribArray(0);
@@ -170,14 +236,23 @@ public class Mesh {
         GLES30.glEnableVertexAttribArray(2);
         GLES30.glVertexAttribPointer(2,3,GLES30.GL_FLOAT,false,Vertex.SIZE  * Float.BYTES,5 * Float.BYTES);
 
+        //Tangent
+        GLES30.glEnableVertexAttribArray(3);
+        GLES30.glVertexAttribPointer(3,3,GLES30.GL_FLOAT,false,Vertex.SIZE  * Float.BYTES,8 * Float.BYTES);
+
+        //Bitangent
+        GLES30.glEnableVertexAttribArray(4);
+        GLES30.glVertexAttribPointer(4,3,GLES30.GL_FLOAT,false,Vertex.SIZE  * Float.BYTES,11 * Float.BYTES);
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void render()
     {
+        //GlobalVariables.logWithTag("In Mesh-render(), VAO is " + VBO.get(0));
         GLES30.glBindVertexArray(VAO.get(0));
         GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER,IBO.get(0));
-        GLES30.glDrawElements(GLES20.GL_TRIANGLES,this.indices.array().length,GLES30.GL_UNSIGNED_INT,0);
+        GLES30.glDrawElements(GLES20.GL_TRIANGLES,this.indices.length,GLES30.GL_UNSIGNED_INT,0);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
@@ -185,22 +260,18 @@ public class Mesh {
     {
         GLES30.glBindVertexArray(VAO.get(0));
         GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER,IBO.get(0));
-        GLES30.glDrawElements(GLES20.GL_LINES,this.indices.array().length,GLES30.GL_UNSIGNED_INT,0);
+        GLES30.glDrawElements(GLES20.GL_LINES,this.indices.length,GLES30.GL_UNSIGNED_INT,0);
     }
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void renderLines()
     {
         GLES30.glBindVertexArray(VAO.get(0));
         GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER,IBO.get(0));
-        GLES30.glDrawElements(GLES20.GL_LINES,this.indices.array().length,GLES30.GL_UNSIGNED_INT,0);
+        GLES30.glDrawElements(GLES20.GL_LINES,this.indices.length,GLES30.GL_UNSIGNED_INT,0);
     }
 
 
-    private Vertex[] vertices;
-    private IntBuffer indices;
-    private IntBuffer VBO;
-    private IntBuffer IBO;
-    private IntBuffer VAO;
+
 
 
 }

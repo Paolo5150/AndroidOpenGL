@@ -38,7 +38,9 @@ public class EngineTime {
 
     }
 
-
+    public static float getDeltaTimeSeconds() {
+        return deltaTimeSeconds;
+    }
 
     private static long currentTime;
     private static long previousTime;

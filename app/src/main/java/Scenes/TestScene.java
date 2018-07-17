@@ -1,42 +1,42 @@
 package Scenes;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Log;
+import android.opengl.GLES20;
+import android.opengl.GLES30;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 
-import com.blogspot.androidcanteen.androidopengl.GlobalVariables;
-import com.blogspot.androidcanteen.androidopengl.R;
-
-import java.io.IOException;
-
-import Application.Camera;
-import Application.IInteractionListener;
+import Components.Collider;
 import Components.MeshRenderer;
-import Components.SphereCollider;
-import Engine.AssetLoader;
-import Engine.GameObject;
-import Engine.Input;
+import Components.PhysicsBody;
+import Components.Renderer;
 import Engine.PreMadeMeshes;
-import Engine.Scene;
-import Engine.Utils;
 import Physics.Ray;
 import Physics.RayCast;
-import Rendering.LightShader;
+import PreMadeGameObjects.Terrain;
+import Rendering.Camera;
+import Application.IInteractionListener;
+import Engine.GameObject;
+import Engine.Input;
+import Engine.Scene;
+import Rendering.CubeMap;
+import Rendering.Lighting;
 import Rendering.Material;
+import Rendering.MaterialManager;
 import Rendering.Screen;
-import Rendering.Shader;
-import Rendering.Texture;
 import Math.*;
+import PreMadeGameObjects.SkyBox;
 
 public class TestScene extends Scene implements IInteractionListener {
 
-    Shader shader;
 
-    GameObject chariz;
-    GameObject quad;
+
     GameObject sphere;
-    GameObject cube;
-    Camera cam;
+    GameObject quad;
+    Terrain terrain;
+
+
+    GameObject cam;
+    GameObject cam2;
 
     Material mat;
 
@@ -47,73 +47,123 @@ public class TestScene extends Scene implements IInteractionListener {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void start()
     {
-        shader = new LightShader();
 
-        cam = new Camera("Main_Camera");
-        cam.setPerspective(60,(float) Screen.SCREEN_WIDTH / Screen.SCREEN_HEIGHT,0.1f,128);
-        cam.position.z = 5;
+        cam = new GameObject("Camera_Main");
+        cam.addComponent(new Camera("Camera_Main",cam));
+        cam.getComponentByType("Camera",Camera.class).setPerspective(60,(float) Screen.SCREEN_WIDTH / Screen.SCREEN_HEIGHT,0.1f,1000.0f);
+        cam.transform.position.z = 8;
 
-        Bitmap    wall= AssetLoader.getInstance().getTextureBmp("wall.jpg");
-
-        chariz = new GameObject("Chariz");
-        quad = new GameObject("Quad");
-        quad.addComponent(new MeshRenderer(PreMadeMeshes.getMeshByName("Quad"),new Material(new LightShader(),new Vector3f(1,1,1),
-                new Texture(wall),
-                new Vector3f(1,1,1),128),quad));
-
-        quad.transform.scale = new Vector3f(0.5f,0.5f,0.5f);
-        quad.transform.position.x = 1.0f;
+        cam2 = new GameObject("Camera_Second");
+        cam2.addComponent(new Camera("Camera_Second",cam2));
+        cam2.getComponentByType("Camera",Camera.class).setPerspective(60,(float) Screen.SCREEN_WIDTH / Screen.SCREEN_HEIGHT,0.1f,1000.0f);
+        cam2.transform.position.z = 4;
+        cam2.getComponentByType("Camera",Camera.class).depth = -1;
 
 
-        chariz.addChild(quad);
+
+        terrain = new Terrain();
+
+        sphere = new GameObject("Sphere");
+        //sphere.addComponent(new CharizardBehavior(sphere));
+        sphere.addComponent(new MeshRenderer(PreMadeMeshes.getMeshByName("Sphere"), MaterialManager.getMaterialByName("Material_BumpyRock"), sphere));
+
+        sphere.transform.scale = new Vector3f(0.8f,0.8f,0.8f);
+      // sphere.addComponent(new PhysicsBody(sphere));
 
 
-        chariz.addComponent(new CharizardBehavior(chariz));
 
-        addChild(chariz);
+        quad = new GameObject("OtherSphere");
+       // quad.addComponent(new CharizardBehavior(quad));
+        quad.addComponent(new MeshRenderer(PreMadeMeshes.getMeshByName("Quad"),MaterialManager.getMaterialByName("Material_BumpyWall"), quad));
+        quad.getComponentByType("Renderer", Renderer.class).setRenderingCamera(cam2.getComponentByType("Camera",Camera.class));
 
 
-        printHierarchy();
+
+       addChild(quad);
+       addChild(cam);
+       addChild(cam2);
+        addChild(sphere);
+       addChild(terrain);
+
+        //printHierarchy();
+
 
        super.start();
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void update()
     {
-        cam.Update();
-        chariz.transform.rotation.y += 1.0f ;
-        chariz.transform.position.y += 0.001f ;
-
-
 
 
         super.update();
+
+
+        sphere.transform.position.z +=0.05f;
+
+
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void render()
     {
 
-        super.render();
+        //super.render();
+
+
+        sphere.render();
+       // GLES30.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
+        quad.render();
+
+
+
+
+
+    }
+
+    @Override
+    public void assignOptionalSkyBox() {
+        CubeMap c = new CubeMap("ClearSky","sky");
+        skyBox = new SkyBox(c);
     }
 
     @Override
     public void OnInteract() {
 
+
+
         if(Input.getInstance().isTouch())
         {
-        Ray r =   RayCast.rayCastFromCamera(Camera.getCameraByName("Main_Camera"),100);
+        Ray r = RayCast.rayCastFromActiveCamera(100);
+        float distToCam = Vector3f.subtract(sphere.transform.position,cam.transform.position).length();
 
-            if(((SphereCollider)chariz.getComponent("SphereCollider")).isCollidingWithRay(r))
+            if(    sphere.getComponentByType("Collider",Collider.class).isCollidingWithRay(r)  )
             {
-                chariz.transform.position = r.pointOnRay(5);
+              sphere.getComponentByType("PhysicsBody",PhysicsBody.class).setGravityMultiplier(0);
+                sphere.getComponentByType("PhysicsBody",PhysicsBody.class).velocity.y = 0;
+                sphere.transform.position.x = r.pointOnRay(distToCam).x;
+                sphere.transform.position.y = r.pointOnRay(distToCam).y;
+
 
             }
 
 
+
+
+        Lighting.directionalLight.rotation.x = -r.pointOnRay(5).x;
+            Lighting.directionalLight.rotation.y = -1;
+            Lighting.directionalLight.rotation.z = -1;
         }
+        else
+        {
+           sphere.getComponentByType("PhysicsBody",PhysicsBody.class).setGravityMultiplier(1);
+        }
+
+
     }
 }

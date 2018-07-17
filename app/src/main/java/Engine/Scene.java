@@ -1,24 +1,17 @@
 package Engine;
 
-import android.util.Log;
-
-import com.blogspot.androidcanteen.androidopengl.GlobalVariables;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import Application.IInteractionListener;
+import PreMadeGameObjects.SkyBox;
 
 public abstract class Scene extends GameObject {
 
+    public SkyBox skyBox;
 
-   // HashMap<String, GameObject> objectsInScene;
     private String name;
 
     public Scene(String name)
     {
         super(name);
-      //  objectsInScene = new HashMap<>();
+
         this.name = name;
 
     }
@@ -27,6 +20,7 @@ public abstract class Scene extends GameObject {
     public void start()
     {
 
+        assignOptionalSkyBox();
         for(GameObject g : children)
             if(g.isActive())
                 g.start();
@@ -35,12 +29,7 @@ public abstract class Scene extends GameObject {
 
     public void update()
     {
-        /*for(String s : objectsInScene.keySet())
-        {
-            GameObject o = objectsInScene.get(s);
-            if(o.isActive())
-                o.update();
-        }*/
+
 
         for(GameObject g : children)
             if(g.isActive())
@@ -48,20 +37,26 @@ public abstract class Scene extends GameObject {
 
     }
 
+    public void stop()
+    {
+
+    }
+
 
     public void render()
     {
-       /* for(String s : objectsInScene.keySet())
-        {
-            GameObject o = objectsInScene.get(s);
-            if(o.isActive())
-                o.render();
-        }*/
+
+      //  GlobalVariables.logWithTag("Rendering scene, num of objecs: " + children.size());
 
         for(GameObject g : children)
+        {
             if(g.isActive())
                 g.render();
+        }
+
     }
+
+    public abstract void assignOptionalSkyBox();
 
     public void rearrangeSceneHierarchy()
     {

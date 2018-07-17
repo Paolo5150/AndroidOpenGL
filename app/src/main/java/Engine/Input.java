@@ -68,8 +68,6 @@ public class Input implements ITouchListener {
         isTouch = true;
         notifyListener();
 
-
-
     }
 
     @Override
@@ -84,6 +82,7 @@ public class Input implements ITouchListener {
     @Override
     public void OnRelease(int x, int y) {
 
+        GlobalVariables.logWithTag("RELEASED");
         updateTouch(x,y);
         isTouch = false;
         notifyListener();

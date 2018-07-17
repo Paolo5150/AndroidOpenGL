@@ -15,6 +15,7 @@ public class AssetLoader {
     private final String textureFolder = "Textures/";
     private final String shaderFolder = "Shaders/";
     private final String modelsFolder = "Models/";
+    private final String skyBoxFolder = "SkyBoxes/";
 
     private static AssetLoader instance;
 
@@ -76,9 +77,31 @@ public class AssetLoader {
 
 
     }
+
+    public Bitmap getTextureCubeMapBmp(String folderName,String textureName)
+    {
+        String fullPath = getCubeMapFullPath(folderName,textureName);
+
+        Bitmap bmp = null;
+
+        try {
+            bmp = BitmapFactory.decodeStream(manager.open(fullPath));
+           // GlobalVariables.logWithTag("Created bitmap with file " + fullPath);
+        } catch (IOException e) {
+            GlobalVariables.logWithTag("Could not find " + textureName);
+        }
+
+        return bmp;
+
+
+    }
     private String getTextureFullPath(String textureName)
     {
         return textureFolder + textureName;
+    }
+    private String getCubeMapFullPath(String folderName,String textureName)
+    {
+        return skyBoxFolder + folderName + "/" + textureName;
     }
 
 

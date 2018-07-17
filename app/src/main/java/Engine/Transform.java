@@ -2,7 +2,7 @@ package Engine;
 
 import android.opengl.Matrix;
 
-import Application.Camera;
+import Rendering.Camera;
 import Math.Vector3f;
 
 public class Transform {

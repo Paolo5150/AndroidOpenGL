@@ -1,0 +1,66 @@
+#version 300 es
+precision highp float;
+
+struct Material
+{
+    vec3 color;
+    vec3 specularColor;
+    float shininess;
+    vec2 UVOffset;
+    float UVScale;
+};
+
+struct DirectionalLight
+{
+    vec3 direction;
+    vec3 specularColor;
+    vec3 color;
+};
+
+
+
+out vec4 col;
+
+//From Vertex shader
+in vec2 coords;
+in vec3 norms;
+in vec3 fragpos;
+in DirectionalLight directionalLight;
+in vec3 camPos;
+
+
+uniform vec3 ambientLight;
+
+uniform Material material;
+uniform sampler2D texture_diffuse0;
+
+
+
+
+
+void main()
+{
+
+    vec3 texColor = texture(texture_diffuse0,coords * material.UVScale).xyz;
+
+
+
+    //Diffuse lighting
+    vec3 diffuse;
+    float d = max(dot(normalize(norms),-normalize(directionalLight.direction)),0.0);
+    diffuse = directionalLight.color * d;
+
+    //Specular lighting
+    vec3 specular;
+    vec3 fragToCam = normalize(camPos - fragpos);
+
+    vec3 ref = reflect(normalize(directionalLight.direction), normalize(norms));
+    d = pow(max(dot(normalize(ref), fragToCam),0.0f),material.shininess);
+
+    specular = d * material.specularColor ;
+
+    vec3 total = texColor * material.color * (ambientLight + diffuse + specular);
+
+    col = vec4(total,1.0);
+
+}
