@@ -200,6 +200,6 @@ public class Utils {
             ins[i] = indices.get(i);
 
 
-        return new Mesh(vs,ins);
+        return new Mesh(vs,ins,true);
     }
 }

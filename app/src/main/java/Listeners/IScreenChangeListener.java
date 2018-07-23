@@ -1,4 +1,6 @@
 package Listeners;
 
-public class IScreenChangeListener {
+public interface IScreenChangeListener {
+
+    public void OnScreenChanged();
 }

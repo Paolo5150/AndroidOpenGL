@@ -24,18 +24,7 @@ public class Mesh {
     private IntBuffer IBO;
     private IntBuffer VAO;
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-    public Mesh(Vertex[] vertices, int[] indices)
-    {
-        VAO = IntBuffer.allocate(1);
-        VBO = IntBuffer.allocate(1);
-        IBO = IntBuffer.allocate(1);
-        GLES30.glGenVertexArrays(1,VAO);
-        GLES30.glGenBuffers(1,VBO);
-        GLES30.glGenBuffers(1,IBO);
-        Initialize(vertices, indices,true);
 
-    }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public Mesh(Vertex[] vertices, int[] indices, boolean normalize)
@@ -175,25 +164,15 @@ public class Mesh {
 
     }
 
-
-
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-     void Initialize(Vertex[] vertices, int[] indices, boolean normalize)
+    public void UpdateVertices(Vertex[] newVertices, int[] indices)
     {
-        this.vertices = vertices;
-
+        this.vertices = newVertices;
         this.indices = indices;
+        CalculateNormals();
 
-
-        if(normalize)
-         NormalizeMesh();
-
-       CalculateNormals();
-
-
-        GLES30.glBindVertexArray(VAO.get(0));
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, VBO.get(0));
-        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER,IBO.get(0));
+
+
 
         FloatBuffer  buffer = FloatBuffer.allocate(vertices.length * Vertex.BYTES);
 
@@ -218,11 +197,34 @@ public class Mesh {
 
 
         buffer.position(0);
-       // buffer.flip();
+        // buffer.flip();
 
         GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER ,vertices.length * Vertex.BYTES,buffer,GLES30.GL_STATIC_DRAW );
+
+
+        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER,IBO.get(0));
         IntBuffer buf = IntBuffer.wrap(indices);
         GLES30.glBufferData(GLES30.GL_ELEMENT_ARRAY_BUFFER,indices.length * Integer.BYTES,buf,GLES30.GL_STATIC_DRAW);
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+     void Initialize(Vertex[] vertices, int[] indices, boolean normalize)
+    {
+        this.vertices = vertices;
+
+        this.indices = indices;
+
+
+        if(normalize)
+         NormalizeMesh();
+
+       CalculateNormals();
+
+
+        GLES30.glBindVertexArray(VAO.get(0));
+        UpdateVertices(vertices,indices);
+
 
         //Vertex position
         GLES30.glEnableVertexAttribArray(0);
@@ -270,8 +272,7 @@ public class Mesh {
         GLES30.glDrawElements(GLES20.GL_LINES,this.indices.length,GLES30.GL_UNSIGNED_INT,0);
     }
 
-
-
-
-
+    public int[] getIndices() {
+        return indices;
+    }
 }

@@ -1,32 +1,28 @@
 package Scenes;
 
-import android.opengl.GLES20;
-import android.opengl.GLES30;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 
-import Components.Collider;
+import com.blogspot.androidcanteen.androidopengl.GlobalVariables;
+
+import Application.AppCanvas;
+import Components.CameraPerspective;
 import Components.MeshRenderer;
-import Components.PhysicsBody;
-import Components.Renderer;
-import Engine.PreMadeMeshes;
-import Physics.Ray;
-import Physics.RayCast;
-import PreMadeGameObjects.Terrain;
-import Rendering.Camera;
-import Application.IInteractionListener;
-import Engine.GameObject;
 import Engine.Input;
+import Engine.PreMadeMeshes;
+import GUI.GUICanvas;
+import GUI.GUITexture;
+import Listeners.ITouchListener;
+import PreMadeGameObjects.Terrain;
+import Engine.GameObject;
 import Engine.Scene;
 import Rendering.CubeMap;
-import Rendering.Lighting;
-import Rendering.Material;
 import Rendering.MaterialManager;
 import Rendering.Screen;
-import Math.*;
 import PreMadeGameObjects.SkyBox;
+import Rendering.Texture;
 
-public class TestScene extends Scene implements IInteractionListener {
+public class TestScene extends Scene implements ITouchListener {
 
 
 
@@ -36,14 +32,17 @@ public class TestScene extends Scene implements IInteractionListener {
 
 
     GameObject cam;
-    GameObject cam2;
 
-    Material mat;
+
+    GUITexture guiObj;
+    GameObject can;
+
+
 
     public TestScene() {
         super("Test_Scene");
 
-        Input.getInstance().addInteractionListener(this);
+
     }
 
 
@@ -51,17 +50,15 @@ public class TestScene extends Scene implements IInteractionListener {
     public void start()
     {
 
+        super.start();
         cam = new GameObject("Camera_Main");
-        cam.addComponent(new Camera("Camera_Main",cam));
-        cam.getComponentByType("Camera",Camera.class).setPerspective(60,(float) Screen.SCREEN_WIDTH / Screen.SCREEN_HEIGHT,0.1f,1000.0f);
+        cam.addComponent(new CameraPerspective("Camera_Main",cam,60,(float) Screen.SCREEN_WIDTH / Screen.SCREEN_HEIGHT,0.1f,1000.0f));
+
         cam.transform.position.z = 8;
 
 
-        cam2 = new GameObject("Camera_Second");
-        cam2.addComponent(new Camera("Camera_Second",cam2));
-        cam2.getComponentByType("Camera",Camera.class).setPerspective(60,(float) Screen.SCREEN_WIDTH / Screen.SCREEN_HEIGHT,0.1f,1000.0f);
-        cam2.transform.position.z = 4;
-      
+
+
 
 
 
@@ -69,32 +66,32 @@ public class TestScene extends Scene implements IInteractionListener {
         terrain = new Terrain();
 
         sphere = new GameObject("Sphere");
-        //sphere.addComponent(new CharizardBehavior(sphere));
-        sphere.addComponent(new MeshRenderer(PreMadeMeshes.getMeshByName("Sphere"), MaterialManager.getMaterialByName("Material_BumpyRock"), sphere));
+        sphere.addComponent(new CharizardBehavior(sphere));
+        sphere.addComponent(new MeshRenderer(PreMadeMeshes.getMeshByName("Sphere"), MaterialManager.getMaterialByName("Material_BumpyWall"), sphere));
 
-        sphere.transform.scale = new Vector3f(0.3f,0.3f,0.3f);
-
-
+        can = new AppCanvas();
 
 
         quad = new GameObject("Quad");
-       // quad.addComponent(new CharizardBehavior(quad));
-        quad.addComponent(new MeshRenderer(PreMadeMeshes.getMeshByName("Quad"),MaterialManager.getMaterialByName("Material_BumpyWall"), quad));
-        quad.getComponentByType("Renderer", Renderer.class).setRenderingCamera(cam2.getComponentByType("Camera",Camera.class));
+        quad.addComponent(new CharizardBehavior(quad));
+        quad.addComponent(new MeshRenderer(PreMadeMeshes.getMeshByName("Sphere"),MaterialManager.getMaterialByName("Material_BumpyWall"), quad));
 
 
 
 
-       addChild(quad);
+
+      // addChild(quad);
        addChild(cam);
-       addChild(cam2);
-        addChild(sphere);
+      addChild(can);
+
+      addChild(sphere);
        addChild(terrain);
 
         //printHierarchy();
 
+        Input.getInstance().addListener(this);
 
-       super.start();
+
     }
 
 
@@ -106,10 +103,6 @@ public class TestScene extends Scene implements IInteractionListener {
         super.update();
 
 
-        sphere.transform.position.z +=0.05f;
-       // quad.transform.position.y -=0.01f;
-
-
     }
 
 
@@ -117,7 +110,7 @@ public class TestScene extends Scene implements IInteractionListener {
     public void render()
     {
 
-        //super.render();
+        super.render();
 
 
 
@@ -134,38 +127,21 @@ public class TestScene extends Scene implements IInteractionListener {
         skyBox = new SkyBox(c);
     }
 
+
     @Override
-    public void OnInteract() {
+    public void OnTouch(int x, int y, int id) {
 
 
 
-        if(Input.getInstance().isTouch())
-        {
-        Ray r = RayCast.rayCastFromActiveCamera(100);
-        float distToCam = Vector3f.subtract(sphere.transform.position,cam.transform.position).length();
+    }
 
-            if(    sphere.getComponentByType("Collider",Collider.class).isCollidingWithRay(r)  )
-            {
-              sphere.getComponentByType("PhysicsBody",PhysicsBody.class).setGravityMultiplier(0);
-                sphere.getComponentByType("PhysicsBody",PhysicsBody.class).velocity.y = 0;
-                sphere.transform.position.x = r.pointOnRay(distToCam).x;
-                sphere.transform.position.y = r.pointOnRay(distToCam).y;
+    @Override
+    public void OnDrag(int x, int y, int id) {
 
+    }
 
-            }
-
-
-
-
-        Lighting.directionalLight.rotation.x = -r.pointOnRay(5).x;
-            Lighting.directionalLight.rotation.y = -1;
-            Lighting.directionalLight.rotation.z = -1;
-        }
-        else
-        {
-           sphere.getComponentByType("PhysicsBody",PhysicsBody.class).setGravityMultiplier(1);
-        }
-
+    @Override
+    public void OnRelease(int x, int y, int id) {
 
     }
 }

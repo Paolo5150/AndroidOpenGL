@@ -1,4 +1,4 @@
-package Application;
+package Listeners;
 
 public interface IInteractionListener {
 

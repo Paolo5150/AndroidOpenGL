@@ -35,6 +35,7 @@ public class Material extends Entity {
         addFloat("UVScale",3);
         addVec2("UVOffset",new Vector2f());
         addVec3("color",1,1,1);
+        addFloat("alpha",1.0f);
 
     }
 
@@ -47,11 +48,14 @@ public class Material extends Entity {
 
 
         //Load default values
+        addFloat("alpha",1.0f);
         addFloat("UVScale",3);
         addVec2("UVOffset",new Vector2f());
         addTexture(text);
 
     }
+
+
 
     private void Initialize()
     {

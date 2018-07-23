@@ -19,6 +19,6 @@ public class Material_BumpyWall extends Material {
         addTexture(normal);
         addVec3("color",1,1,1);
         addVec3("specularColor",1,1,1);
-        addFloat("shininess",50);
+        addFloat("shininess",20);
     }
 }

@@ -7,13 +7,17 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 
 
+import java.util.ArrayList;
+
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import Application.Application;
+import Components.CameraPerspective;
 import Engine.EngineTime;
 import Engine.PreMadeMeshes;
 import Engine.Utils;
+import Listeners.IScreenChangeListener;
 import Rendering.Layer;
 import Rendering.Lighting;
 import Rendering.MaterialManager;
@@ -28,6 +32,8 @@ import ShaderObjects.ShaderManager;
  */
 
 public class MainRenderer implements GLSurfaceView.Renderer {
+
+    private static ArrayList<IScreenChangeListener> screenChangeListeners;
 
 
     float angle = 0;
@@ -45,7 +51,9 @@ public class MainRenderer implements GLSurfaceView.Renderer {
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     private MainRenderer()
-    {}
+    {
+        screenChangeListeners = new ArrayList<>();
+    }
 
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
@@ -79,20 +87,10 @@ public class MainRenderer implements GLSurfaceView.Renderer {
 
         Screen.Initialize(Utils.activity);
 
-        //Update camera aspect ratio
-       for(String s : Camera.getAllCameras().keySet())
-       {
-          if(Camera.getAllCameras().get(s).getCameraType().equals("Perspective"))
-          {
-              Camera.getAllCameras().get(s).setAspectRatio((float)Screen.SCREEN_WIDTH / (float)Screen.SCREEN_HEIGHT);
-              Camera.getAllCameras().get(s).updateProjectionPerspective();
-          }
+        for(IScreenChangeListener l : screenChangeListeners)
+            l.OnScreenChanged();
 
-          else
-          {
-              //Update orthographic
-          }
-       }
+
 
 
 
@@ -117,5 +115,10 @@ public class MainRenderer implements GLSurfaceView.Renderer {
 
 
 
+    }
+
+    public void registerScreenChangeListener(IScreenChangeListener l)
+    {
+        screenChangeListeners.add(l);
     }
 }

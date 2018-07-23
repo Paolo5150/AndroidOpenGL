@@ -1,0 +1,36 @@
+#version 300 es
+precision highp float;
+
+struct Material
+{
+    vec3 color;
+    float alpha;
+};
+
+
+out vec4 col;
+
+in vec2 coords;
+
+
+uniform Material material;
+uniform sampler2D texture_diffuse0;
+
+
+void main()
+{
+
+    vec3 texColor = texture(texture_diffuse0,coords).xyz;
+
+    vec3 total = material.color;
+
+
+    total *= texColor;
+
+
+
+    col = vec4(total,material.alpha);
+
+
+
+}

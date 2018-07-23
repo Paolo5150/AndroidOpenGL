@@ -17,7 +17,7 @@ public class GameObject extends Entity{
 
 
     public Transform transform;
-    HashMap<String, Component> components;
+    protected HashMap<String, ArrayList<Component>> components;
     public ArrayList<GameObject> children;
     private int layer;
 
@@ -76,7 +76,11 @@ public class GameObject extends Entity{
             go.start();
 
         for(String key : components.keySet())
-                 components.get(key).Start();
+        {
+            for(Component c : components.get(key))
+                 c.Start();
+        }
+
 
 
     }
@@ -86,7 +90,10 @@ public class GameObject extends Entity{
             return;
 
         for(String key : components.keySet())
-            components.get(key).Update();
+        {
+            for(Component c : components.get(key))
+                c.Update();
+        }
 
         for(GameObject go : children)
             go.update();
@@ -101,7 +108,10 @@ public class GameObject extends Entity{
             return;
 
         for(String key : components.keySet())
-            components.get(key).lateUpdate();
+        {
+            for(Component c : components.get(key))
+                c.lateUpdate();
+        }
 
         for(GameObject go : children)
             go.lateUpdate();
@@ -113,7 +123,10 @@ public class GameObject extends Entity{
             return;
 
         for(String key : components.keySet())
-             components.get(key).Render();
+        {
+            for(Component c : components.get(key))
+                c.Render();
+        }
 
         for(GameObject go : children)
             go.render();
@@ -121,19 +134,28 @@ public class GameObject extends Entity{
 
     public void addComponent(Component comp)
     {
-        if(comp.allowMultiple)
-        {
-            int counter = 0;
-            for(String s : components.keySet())
-            {
-                if(components.get(s).getName().contains(comp.getName()))
-                    counter++;
-            }
-            components.put(comp.getName() + counter,comp);
 
+
+        if(components.containsKey(comp.getName()))
+        {
+            if(comp.allowMultiple) {
+                ArrayList<Component> list = components.get(comp.getName());
+                list.add(comp);
+            }
         }
         else
-            components.put(comp.getName() ,comp);
+        {
+            ArrayList<Component> list = new ArrayList<>();
+            list.add(comp);
+            components.put(comp.getName(),list);
+        }
+
+
+
+    }
+
+    public void onAddChild(GameObject child)
+    {
 
     }
 
@@ -161,6 +183,7 @@ public class GameObject extends Entity{
             children.add(go);
         }
 
+        onAddChild(go);
         Application.getCurrentScene().rearrangeSceneHierarchy();
 
     }
@@ -181,40 +204,57 @@ public class GameObject extends Entity{
     public <T extends Component> T getComponent(String name)
     {
         T res = null;
+
         if(components.containsKey(name))
         {
-            res = (T)components.get(name);
+            ArrayList<Component> list = components.get(name);
+
+            res = (T)list.get(0);
+
         }
 
         return res;
+
+
     }
 
-    public <T extends Component> T getComponent(String name,Class<T> tClass)
+    public <T extends Component> T getComponent(String name, Class<T> tClass)
     {
         T res = null;
+
         if(components.containsKey(name))
         {
-            res = (T)components.get(name);
+            ArrayList<Component> list = components.get(name);
+
+            res = tClass.cast(list.get(0));
+
         }
 
         return res;
+
+
     }
+
+
 
     public <T extends Component> T[] getComponentsByType(String type,Class<T> tClass)
     {
 
-        ArrayList<T> list = new ArrayList<>();
+        ArrayList<Component> list = new ArrayList<>();
+        ArrayList<T> listToReturn = new ArrayList<>();
 
         for(String s: components.keySet())
         {
-            if(components.get(s).getComponentType().contains(type)) {
-                list.add((T)components.get(s));
+            list = components.get(s);
 
+            if(list.get(0).getComponentType().equals(type))
+            {
+                listToReturn = (ArrayList<T>) components.get(s);
+                break;
             }
-
         }
 
-        T[] res = (T[]) Array.newInstance(tClass, list.size());
+        T[] res = (T[]) Array.newInstance(tClass, listToReturn.size());
         list.toArray(res);
         return res;
 
@@ -226,12 +266,15 @@ public class GameObject extends Entity{
         T res = null;
         for(String s: components.keySet())
         {
-            if(components.get(s).getComponentType().equals(type)) {
-                res = (T) components.get(s);
+            ArrayList<Component> list = components.get(s);
+
+            if(list.get(0).getComponentType().equals(type))
+            {
+                res = (T)list.get(0);
                 break;
             }
-
         }
+
 
         // GlobalVariables.logWithTag("Gameobject, returned component by type " + res.getName());
         return res;

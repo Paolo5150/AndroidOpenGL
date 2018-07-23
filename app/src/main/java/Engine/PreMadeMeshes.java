@@ -28,6 +28,7 @@ public class PreMadeMeshes {
        allMeshes.put("Charizard",Utils.loadOBJ("charizard.obj"));
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public static Mesh getMeshByName(String name)
     {
 
@@ -38,19 +39,19 @@ public class PreMadeMeshes {
         else
             Log.d(GlobalVariables.TAG, "Mesh " + name + " does not exist");
 
-        return m;
+        return new Mesh(m.getVertices(), m.getIndices(),false);
     }
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     private static Mesh createQuad()
     {
-        Vertex[] vertices = {new Vertex(-0.5f,-0.5f,0.f,0.0f,0.0f),
-                new Vertex(0.5f,-0.5f,0.f,1.0f,0.0f),
-                new Vertex(0.5f,0.5f,0.f,1.0f,1.0f),
-                new Vertex(-0.5f,0.5f,0.f,0.0f,1.0f)};
+        Vertex[] vertices = {new Vertex(-1.0f,-1.0f,0.0f,0.0f,0.0f),
+                new Vertex(1.0f,-1.0f,0.0f,1.0f,0.0f),
+                new Vertex(1.0f,1.0f,0.0f,1.0f,1.0f),
+                new Vertex(-1.0f,1.0f,0.0f,0.0f,1.0f)};
 
         int[] indices = {0,1,2,2,3,0};
 
-        return new Mesh(vertices,indices);
+        return new Mesh(vertices,indices,false);
 
     }
 
@@ -194,7 +195,7 @@ public class PreMadeMeshes {
 
         Vertex[] verts = new Vertex[vertices.size()];
         vertices.toArray(verts);
-        return new Mesh(verts,indices);
+        return new Mesh(verts,indices,false);
 
     }
 

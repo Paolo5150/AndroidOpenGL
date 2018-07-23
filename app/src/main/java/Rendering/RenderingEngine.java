@@ -100,8 +100,11 @@ public class RenderingEngine {
                     if (r.isActive()) {
                         m.getShader().updateMatrices(r.transform.getTransformation(), r.getRenderingCamera());
                         m.updateVec3("color", r.colorOverride); //I have to change this somehow
+                        m.updateFloat("alpha", r.alphaOverride); //I have to change this somehow
                         m.updateMaterialPropertiesToShader();
+                        r.activateGLSpecials();
                         r.RenderUnactivated();
+                        r.deactivateGLSpecials();
                         // GlobalVariables.logWithTag("Rendered " + r.getGameObject().getName());
                     }
                 }

@@ -20,6 +20,14 @@ public class Vector3f {
 
     }
 
+    public static Vector3f lerp(Vector3f start, Vector3f end, float t)
+    {
+        Vector3f s = Vector3f.multiply(start, 1.0f - t);
+        Vector3f e = Vector3f.multiply(end,t);
+
+        return Vector3f.add(s,e);
+    }
+
     public static Vector3f subtract(Vector3f v1, Vector3f v2)
     {
         Vector3f res = new Vector3f();
@@ -28,6 +36,16 @@ public class Vector3f {
         res.z = v1.z - v2.z;
         return res;
 
+    }
+
+    public static Vector3f normalize(Vector3f v)
+    {
+        Vector3f res = new Vector3f();
+        float l = v.length();
+        res.x = v.x/ l;
+        res.y = v.y / l;
+        res.z = v.z / l;
+        return res;
     }
 
     public static Vector3f multiply(Vector3f v1, float scalar)

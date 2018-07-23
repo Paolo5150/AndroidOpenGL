@@ -7,6 +7,7 @@ import Components.MeshRenderer;
 import Engine.AssetLoader;
 import Engine.GameObject;
 import Engine.PreMadeMeshes;
+import MaterialObjects.Material_BumpyRock;
 import MaterialObjects.Material_SkyBox;
 import Math.Vector3f;
 import Rendering.Material;
@@ -30,6 +31,8 @@ public class Terrain extends GameObject {
 
         mat.addTexture(diffuse);
         mat.updateFloat("UVScale",15);
+
+
         addComponent(new MeshRenderer(PreMadeMeshes.getGridMesh(50),mat,this));
         transform.position.y = -12;
         transform.position.x = -40;

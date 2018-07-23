@@ -18,7 +18,7 @@ public class ShaderManager {
         LightShader lightShader = new LightShader();
         BasicShader basicShader = new BasicShader();
         SkyBoxShader skyBoxShader = new SkyBoxShader();
-
+        GUIShader guiShader = new GUIShader();
         LightNoNormalShader lightNoNormalShader = new LightNoNormalShader();
 
 
@@ -27,6 +27,7 @@ public class ShaderManager {
         allShaders.put(lightShader.getName(),lightShader);
         allShaders.put(basicShader.getName(),basicShader);
         allShaders.put(skyBoxShader.getName(),skyBoxShader);
+        allShaders.put(guiShader.getName(),guiShader);
 
 
     }

@@ -1,18 +1,16 @@
 package Engine;
 
-import com.blogspot.androidcanteen.androidopengl.GlobalVariables;
-
 import java.util.ArrayList;
 
-import Application.IInteractionListener;
-import Application.ITouchListener;
+import Listeners.ITouchListener;
 import Math.*;
 import Rendering.Screen;
 
 public class Input implements ITouchListener {
 
     private static Input instance;
-    private static ArrayList<IInteractionListener> listeners;
+    private static ArrayList<ITouchListener> listeners;
+    public static boolean GUITouched;
 
     private Vector2f touchPosition;
     private Vector2f touchPositionNormalized;
@@ -39,16 +37,9 @@ public class Input implements ITouchListener {
         isTouch = false;
     }
 
-    public void addInteractionListener(IInteractionListener listener)
-    {
-        listeners.add(listener);
-    }
 
-    public void notifyListener()
-    {
-        for(IInteractionListener l : listeners)
-            l.OnInteract();
-    }
+
+
 
     private void updateTouch(int x, int y)
     {
@@ -61,31 +52,42 @@ public class Input implements ITouchListener {
         previousTeouchPosition.x = touchPosition.x;
         previousTeouchPosition.y = touchPosition.y;
     }
+
+    public void addListener(ITouchListener l)
+    {
+        listeners.add(l);
+    }
     @Override
-    public void OnTouch(int x, int y) {
+    public void OnTouch(int x, int y, int id) {
 
         updateTouch(x,y);
         isTouch = true;
-        notifyListener();
+        for(ITouchListener l : listeners)
+            l.OnTouch(x,y, id);
+
 
     }
 
     @Override
-    public void OnDrag(int x, int y) {
+    public void OnDrag(int x, int y, int id) {
 
         updateTouch(x,y);
         isTouch = true;
-        notifyListener();
+        for(ITouchListener l : listeners)
+            l.OnDrag(x,y, id);
+
 
     }
 
     @Override
-    public void OnRelease(int x, int y) {
+    public void OnRelease(int x, int y, int id) {
 
-        GlobalVariables.logWithTag("RELEASED");
-        updateTouch(x,y);
+
+
         isTouch = false;
-        notifyListener();
+        for(ITouchListener l : listeners)
+            l.OnRelease(x,y, id);
+
     }
 
     public Vector2f getTouchPosition() {

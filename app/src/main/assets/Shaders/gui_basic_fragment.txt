@@ -1,0 +1,27 @@
+#version 300 es
+precision highp float;
+
+struct Material
+{
+    vec3 color;
+    float alpha;
+};
+
+
+out vec4 col;
+
+
+
+
+uniform Material material;
+
+
+
+void main()
+{
+
+    col = vec4(material.color,material.alpha);
+
+
+
+}

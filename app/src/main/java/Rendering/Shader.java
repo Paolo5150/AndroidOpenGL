@@ -199,7 +199,7 @@ public class Shader extends Entity{
         if(buf[0] == 0)
         {
             String msg = GLES30.glGetShaderInfoLog(id);
-            Log.d(GlobalVariables.TAG,"Error while compiling vertex shader:\n" + msg);
+            Log.d(GlobalVariables.TAG,"Error while compiling vertex shader (" +getName() + "):\n" + msg);
         }
         return id;
     }
@@ -217,7 +217,7 @@ public class Shader extends Entity{
         if(buf[0] == 0)
         {
             String msg = GLES30.glGetShaderInfoLog(id);
-            Log.d(GlobalVariables.TAG,"Error while compiling fragment shader:\n" + msg);
+            Log.d(GlobalVariables.TAG,"Error while compiling fragment shader (" + getName() + "):\n" + msg);
         }
         return id;
     }

@@ -4,6 +4,8 @@ import android.app.ActivityManager;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Point;
+import android.graphics.PointF;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Build;
@@ -15,6 +17,9 @@ import android.view.SurfaceView;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import Engine.Input;
 import Engine.PreMadeMeshes;
 import Engine.Utils;
@@ -23,6 +28,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     GLSurfaceView surview;
+    HashMap<Integer, PointF> pointers;
+
+
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "No support for openGL 3 :(. Bye!", Toast.LENGTH_LONG).show();
             finish();
         }
+
+        pointers = new HashMap<>();
 
         //Initialize utils first!
         Utils.Initialize(getResources(),this);
@@ -60,20 +70,80 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        int x = (int)event.getX();
-        int y = (int)event.getY();
 
-        switch (event.getAction()) {
+        int pointerIndex = event.getActionIndex();
+        int pointerID = event.getPointerId(pointerIndex);
+
+
+
+
+
+        switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
-                Input.getInstance().OnTouch(x,y);
+
+
+                //Reset
+                Input.GUITouched = false;
+
+
+                PointF p = new PointF();
+                p.x = event.getX(pointerIndex);
+                p.y = event.getY(pointerIndex);
+                pointers.put(pointerID,p);
+
+
+
+                Input.getInstance().OnTouch((int)p.x,(int)p.y,pointerID);
+
+                break;
+
+            case MotionEvent.ACTION_POINTER_DOWN:
+
+                PointF p2 = new PointF();
+                p2.x = event.getX(pointerIndex);
+                p2.y = event.getY(pointerIndex);
+                pointers.put(pointerID,p2);
+                Input.getInstance().OnTouch((int)p2.x,(int)p2.y,pointerID);
+
+                break;
+
 
 
             case MotionEvent.ACTION_MOVE:
-                Input.getInstance().OnDrag(x,y);
+
+                for (int i = 0; i < event.getPointerCount(); i++) {
+                 //   GlobalVariables.logWithTag("Getting point with id " + event.getPointerId(i));
+                    PointF point = pointers.get(event.getPointerId(event.getActionIndex()));
+
+                    if (point != null) {
+
+                        point.x = event.getX(i);
+                        point.y = event.getY(i);
+                        Input.getInstance().OnDrag((int)point.x,(int)point.y,pointerID);
+                    }
+                }
+
+
+                break;
+
+
 
 
             case MotionEvent.ACTION_UP:
-                Input.getInstance().OnRelease(x,y);
+
+                Input.getInstance().OnRelease(0,0,pointerID);
+
+                pointers.remove(pointerID);
+
+                break;
+
+            case MotionEvent.ACTION_POINTER_UP:
+
+                Input.getInstance().OnRelease(0,0,pointerID);
+
+                pointers.remove(pointerID);
+
+                break;
 
         }
         return false;

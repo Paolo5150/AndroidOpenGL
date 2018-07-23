@@ -14,7 +14,7 @@ import Rendering.Screen;
  * Created by Paolo on 25/06/2018.
  */
 
-public class Application implements IInteractionListener{
+public class Application{
 
     private Activity activity;
     public static boolean running;
@@ -37,7 +37,7 @@ public class Application implements IInteractionListener{
     }
     private Application()
     {
-        Input.getInstance().addInteractionListener(this);
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
@@ -76,12 +76,4 @@ public class Application implements IInteractionListener{
         currentScene.start();
     }
 
-    @Override
-    public void OnInteract() {
-
-
-
-
-
-    }
 }

@@ -13,12 +13,11 @@ import PreMadeGameObjects.Plane;
 import Rendering.RenderingEngine;
 import ShaderObjects.BasicShader;
 import Rendering.Material;
-import Rendering.Mesh;
 
 public abstract class Collider extends Component{
 
     public Transform transform;
-    public MeshRenderer meshRenderer;
+    public Renderer renderer;
 
     public Material material;
     private boolean renderable;
@@ -39,10 +38,10 @@ public abstract class Collider extends Component{
 
 
         //Mesh renderer
-        meshRenderer = new MeshRenderer(null,material,o);
-        meshRenderer.transform = transform;
-        meshRenderer.renderMode = Renderer.RENDER_MODE.LINES;
-        meshRenderer.setGameObject(getGameObject());
+        renderer = new MeshRenderer(null,material,o);
+        renderer.transform = transform;
+        renderer.renderMode = Renderer.RENDER_MODE.LINES;
+        renderer.setGameObject(getGameObject());
         renderable = false;
 
 
@@ -58,8 +57,10 @@ public abstract class Collider extends Component{
     @Override
     public void Update()
     {
-        if(renderable)
-        RenderingEngine.getInstance().addToBatch(meshRenderer);
+        if(renderable) {
+           // GlobalVariables.logWithTag("Added collider " + getName());
+            RenderingEngine.getInstance().addToBatch(renderer);
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
@@ -68,7 +69,7 @@ public abstract class Collider extends Component{
     {
 
         if(renderable)
-        meshRenderer.Render();
+        renderer.Render();
 
     }
 

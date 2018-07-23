@@ -2,7 +2,8 @@ package Components;
 
 
 
-import com.blogspot.androidcanteen.androidopengl.GlobalVariables;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 
 import Engine.GameObject;
 import Engine.PreMadeMeshes;
@@ -13,6 +14,7 @@ import PreMadeGameObjects.Plane;
 
 public class SphereCollider extends Collider {
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public SphereCollider(GameObject o)
     {
 
@@ -21,7 +23,7 @@ public class SphereCollider extends Collider {
 
 
         //Assign sphere mesh
-        meshRenderer.setMesh(PreMadeMeshes.getMeshByName("Sphere"));
+        renderer.setMesh(PreMadeMeshes.getMeshByName("Sphere"));
 
     }
 

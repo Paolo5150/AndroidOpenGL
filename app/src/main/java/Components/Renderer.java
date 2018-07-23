@@ -30,16 +30,22 @@ public abstract class Renderer extends Component{
     public Transform transform;
     protected Camera renderingCamera;
     public Vector3f colorOverride;
+    public float alphaOverride;
     public RENDER_MODE renderMode;
 
 
-    public Renderer(String name,Mesh mesh, Material mat, GameObject o)
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+    public Renderer(String name, Mesh m, Material mat, GameObject o)
     {
         super(name,o);
         colorOverride = new Vector3f(1,1,1);
+        alphaOverride = 1.0f;
         this.material = mat;
 
-        this.mesh = mesh;
+        if(m!=null)
+        setMesh(m);
+
         this.gameObject = o;
         this.transform = o.transform;
         renderMode = RENDER_MODE.FILL;
@@ -48,6 +54,13 @@ public abstract class Renderer extends Component{
         renderingCamera = Camera.activeCamera;
 
     }
+
+    public void activateGLSpecials()
+    {}
+
+    public void deactivateGLSpecials()
+    {}
+
 
     @Override
     protected void setComponentType()
@@ -60,7 +73,7 @@ public abstract class Renderer extends Component{
     {
         //renderingCamera = Camera.activeCamera;
 
-
+        activateGLSpecials();
         //Check Layer
         for(Integer i : renderingCamera.cullingMask)
         {
@@ -73,15 +86,14 @@ public abstract class Renderer extends Component{
                     mesh.renderLines();
             }
         }
-
+    deactivateGLSpecials();
 
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void RenderUnactivated()
     {
-       // renderingCamera = Camera.activeCamera;
-        //Check Layer
+        activateGLSpecials();
         for(Integer i : renderingCamera.cullingMask)
         {
             if(i == getGameObject().getLayer()) {
@@ -93,6 +105,7 @@ public abstract class Renderer extends Component{
 
             }
         }
+        deactivateGLSpecials();
     }
 
 
@@ -102,6 +115,8 @@ public abstract class Renderer extends Component{
     {
 
              material.updateVec3("color",colorOverride); //Also called in RenderingEngine - batch rendering
+            material.updateFloat("alpha",alphaOverride); //Also called in RenderingEngine - batch rendering
+
             material.ActivateMaterial(transform.getTransformation(),renderingCamera);
     }
 
@@ -111,8 +126,10 @@ public abstract class Renderer extends Component{
         return mesh;
     }
 
-    public void setMesh(Mesh mesh) {
-        this.mesh = mesh;
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+    public void setMesh(Mesh m) {
+
+        this.mesh = new Mesh(m.getVertices(),m.getIndices(),false);
     }
 
     public Material getMaterial() {

@@ -1,9 +1,12 @@
 package Rendering;
 
 import android.opengl.Matrix;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import com.blogspot.androidcanteen.androidopengl.GlobalVariables;
+import com.blogspot.androidcanteen.androidopengl.MainRenderer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,40 +15,41 @@ import java.util.Set;
 
 import Engine.Component;
 import Engine.GameObject;
+import Listeners.IScreenChangeListener;
 import Math.Vector3f;
 
 /**
  * Created by Paolo on 24/06/2018.
  */
 
-public class Camera extends Component {
+public abstract class Camera extends Component implements IScreenChangeListener{
 
 
     public static Camera activeCamera;
-    private static HashMap<String, Camera> allCameras = new HashMap<String,Camera>();
+    protected static HashMap<String, Camera> allCameras = new HashMap<String,Camera>();
 
 
     public int depth;
+    protected float near;
+    protected float far;
 
     public Vector3f target;
     public Vector3f up;
 
-    float yaw;
-    float pitch;
+    public float yaw;
+    public float pitch;
     float roll;
-    private float[] viewM;
-    private float[] projM;
+    protected float[] viewM;
+    protected float[] projM;
 
-    private float FOV;
-    private float aspectRatio;
-    private float near;
-    private float far;
-    private String cameraType;
+
+    protected String cameraType;
     public Set<Integer> cullingMask;
 
-    private Vector3f front;
-    private Vector3f right;
+    public Vector3f front;
+    public Vector3f right;
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public Camera(String name, GameObject o)
     {
         super(name,o);
@@ -70,13 +74,15 @@ public class Camera extends Component {
             addLayer(s);
         }
 
-        updateVectors();
-        updateView();
+
 
     allCameras.put(name,this);
 
     if(activeCamera == null)
         activeCamera = this;
+
+    //Register to screen change listener
+        MainRenderer.getInstance().registerScreenChangeListener(this);
     }
 
     @Override
@@ -92,16 +98,7 @@ public class Camera extends Component {
         activeCamera = c;
     }
 
-    public void setPerspective(float FOV, float ratio, float near, float far)
-    {
-        this.FOV = FOV;
-        this.aspectRatio = ratio;
-        this.near = near;
-        this.far = far;
-        cameraType = "Perspective";
-        updateProjectionPerspective();
 
-    }
 
     public void setOrthographic(float left,float right, float bottom, float top, float near, float far)
     {
@@ -112,7 +109,7 @@ public class Camera extends Component {
     public void addLayer(String name)
     {
 
-       GlobalVariables.logWithTag("Layer added to camera " + cullingMask.size());
+       //GlobalVariables.logWithTag("Layer added to camera " + cullingMask.size());
         cullingMask.add(Layer.getLayer(name));
     }
 
@@ -120,14 +117,12 @@ public class Camera extends Component {
     {
 
        cullingMask.remove((Integer)Layer.getLayer(name));
-       GlobalVariables.logWithTag("Layer removed from camera " + cullingMask.size());
+      // GlobalVariables.logWithTag("Layer removed from camera " + cullingMask.size());
 
     }
 
-    public void updateProjectionPerspective()
-    {
-        Matrix.perspectiveM(projM,0,FOV,aspectRatio,near,far);
-    }
+    public abstract void updateProjection();
+
 
     public void updateView()
     {
@@ -162,6 +157,8 @@ public class Camera extends Component {
     { front.x = (float) Math.cos(Math.toRadians(pitch)) * (float) Math.cos(Math.toRadians(yaw)) ;
         front.y =(float) Math.sin(Math.toRadians(pitch));
         front.z =(float) Math.sin(Math.toRadians(yaw)) * (float) Math.cos(Math.toRadians(pitch));
+
+        right = front.cross(up);
         target = Vector3f.add(getGameObject().transform.position, front);}
 
 
@@ -195,7 +192,5 @@ public class Camera extends Component {
         return cameraType;
     }
 
-    public void setAspectRatio(float aspectRatio) {
-        this.aspectRatio = aspectRatio;
-    }
+
 }
