@@ -72,7 +72,8 @@ public class MainRenderer implements GLSurfaceView.Renderer {
 
             RenderingEngine.getInstance().Initialize();
 
-            Application.setCurrentScene(new TestScene());
+
+            Application.getInstance().setCurrentScene(new TestScene());
 
 
 
@@ -90,11 +91,6 @@ public class MainRenderer implements GLSurfaceView.Renderer {
         for(IScreenChangeListener l : screenChangeListeners)
             l.OnScreenChanged();
 
-
-
-
-
-
     }
 
 
@@ -109,7 +105,8 @@ public class MainRenderer implements GLSurfaceView.Renderer {
        //
 
 
-        RenderingEngine.getInstance().renderSceneUsingBatch(Application.getCurrentScene());
+        RenderingEngine.getInstance().renderSceneUsingBatch(Application.getInstance().getCurrentScene());
+        RenderingEngine.getInstance().clearMap(); //IMPORTANT, call here and not in render method. Frame buffer uses render method to render scene, so map cannot be cleared there
 
         EngineTime.Update();
 

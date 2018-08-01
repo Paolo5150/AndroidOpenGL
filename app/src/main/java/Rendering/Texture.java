@@ -48,6 +48,7 @@ public class Texture extends Entity {
     private int width;
     private int height;
     private String uniformName;
+    private Bitmap bitmap;
 
 
 
@@ -55,7 +56,7 @@ public class Texture extends Entity {
     public Texture(String textureFileName, String uniformName)
     {
         super(textureFileName,"Texture");
-        Bitmap bitmap = AssetLoader.getInstance().getTextureBmp(textureFileName);
+        bitmap = AssetLoader.getInstance().getTextureBmp(textureFileName);
 
 
         this.uniformName = uniformName;
@@ -63,6 +64,35 @@ public class Texture extends Entity {
 
     }
 
+    public Texture(String uniformName)
+    {
+        super("EmptyTexture","Texture");
+        this.uniformName = uniformName;
+        generateEmptyTexture();
+    }
+
+    public void generateEmptyTexture()
+    {
+
+
+        textureID = new int[1];
+
+        GLES20.glGenTextures(1,textureID,0);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,textureID[0]);
+
+
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
+
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR); //Linear or nearest
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+
+
+        GLES30.glTexImage2D(GLES30.GL_TEXTURE_2D, 0, GLES30.GL_RGB, Screen.SCREEN_WIDTH, Screen.SCREEN_HEIGHT, 0, GLES30.GL_RGB,GLES30.GL_UNSIGNED_BYTE, null);
+
+
+
+    }
 
 
     @RequiresApi(api = Build.VERSION_CODES.FROYO)
@@ -87,7 +117,8 @@ public class Texture extends Entity {
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
 
         GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
-        bitmap.recycle();
+      //  if(bitmap!=null)
+       // bitmap.recycle();
 
     }
     public void bind()
@@ -96,6 +127,9 @@ public class Texture extends Entity {
 
     }
 
+    public Bitmap getBitmap() {
+        return bitmap;
+    }
 
     public String getUniformName() {
         return uniformName;

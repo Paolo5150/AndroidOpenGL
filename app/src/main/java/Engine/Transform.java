@@ -2,34 +2,59 @@ package Engine;
 
 import android.opengl.Matrix;
 
+import java.util.ArrayList;
+
+import Listeners.ITransformChangeListener;
 import Rendering.Camera;
 import Math.Vector3f;
 
-public class Transform {
+public class Transform implements ITransformChangeListener {
 
     GameObject gameObject;
     Transform parent;
+    public Vector3f position;
+    public Vector3f rotation;
+    public Vector3f scale;
+
+    private Vector3f worldScale;
+    private Vector3f worldPosition;
+
+    private ArrayList<ITransformChangeListener> childrenListeners;
 
     public Transform()
     {
-        position = new Vector3f();
-        rotation = new Vector3f();
-        scale = new Vector3f(1,1,1);
-        parent = null;
+        initialize();
         gameObject = null;
+
 
     }
 
     public Transform(GameObject g)
     {
-        position = new Vector3f();
-        rotation = new Vector3f();
-        scale = new Vector3f(1,1,1);
-        parent = null;
+        initialize();
         gameObject = g;
 
     }
 
+    private void initialize()
+    {
+        position = new Vector3f();
+        rotation = new Vector3f();
+        scale = new Vector3f(1,1,1);
+        worldScale = getActualScale();
+        worldPosition = getWorldLocation();
+        parent = null;
+        childrenListeners = new ArrayList<>();
+    }
+
+    public float[] getInverseTransformation()
+    {
+        float[] res = new float[16];
+
+
+        Matrix.invertM(res,0,getTransformation(),0);
+        return res;
+    }
     public float[] getTransformation()
     {
         float[] t = new float[16];
@@ -68,7 +93,10 @@ public class Transform {
 
     public void setParent(Transform parent)
     {
+
         this.parent = parent;
+        parent.childrenListeners.add(this);
+
     }
     public Transform getParent()
     {
@@ -83,7 +111,7 @@ public class Transform {
         return mvp;
     }
 
-    public Vector3f getWorldLocation()
+    private Vector3f getWorldLocation()
     {
         Vector3f v = new Vector3f();
         float[] t = getTransformation();
@@ -109,7 +137,62 @@ public class Transform {
         return gameObject;
     }
 
-    public Vector3f position;
-    public Vector3f rotation;
-    public Vector3f scale;
+
+    public void setPosition(Vector3f position) {
+        this.position = position;
+        worldPosition = getWorldLocation();
+        for(ITransformChangeListener l : childrenListeners)
+            l.OnPositionChange();
+    }
+
+    public void setRotation(Vector3f rotation) {
+        this.rotation = rotation;
+        for(ITransformChangeListener l : childrenListeners)
+            l.OnRotationChange();
+    }
+
+    public void setScale(Vector3f scale) {
+        this.scale = scale;
+        worldScale = getActualScale();
+
+        for(ITransformChangeListener l : childrenListeners)
+            l.OnScaleChange();
+    }
+
+    public Vector3f getPosition() {
+        return position;
+    }
+
+    public Vector3f getRotation() {
+        return rotation;
+    }
+
+    public Vector3f getScale() {
+        return scale;
+    }
+
+    public Vector3f getWorldScale() {
+        return worldScale;
+    }
+
+    public Vector3f getWorldPosition() {
+        return getWorldLocation(); //Need to find a better way
+    }
+
+    @Override
+    public void OnPositionChange() {
+        worldPosition = getWorldLocation();
+
+    }
+
+    @Override
+    public void OnScaleChange() {
+        worldScale = getActualScale();
+
+    }
+
+    @Override
+    public void OnRotationChange() {
+
+    }
 }

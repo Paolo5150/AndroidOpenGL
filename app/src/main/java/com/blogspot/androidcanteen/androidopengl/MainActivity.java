@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -35,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+       // setContentView(R.layout.activity_main);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -52,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         //Initialize utils first!
         Utils.Initialize(getResources(),this);
        surview = (GLSurfaceView) findViewById(R.id.surview);
+        surview.setEGLConfigChooser(8,8,8,8,24,8);
        surview.setEGLContextClientVersion(3);
 
         surview.setRenderer(MainRenderer.getInstance());

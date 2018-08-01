@@ -16,7 +16,7 @@ public class Material extends Entity {
     protected HashMap<String, Vector3f> vec3s;
     protected HashMap<String, Vector2f> vec2s;
     protected HashMap<String, Float> floats;
-    protected HashMap<String, Texture> textures;
+    protected HashMap<String, Integer> textures;
     protected HashMap<String, CubeMap> cubeMaps;
     protected Shader shader;
 
@@ -104,18 +104,23 @@ public class Material extends Entity {
     {
         int counter = 0;
 
-        //BIND TEXTURES
-        for(String s : textures.keySet())
-        {
-
-                shader.setInt(s ,counter);
-                GLES10.glActiveTexture(GLES10.GL_TEXTURE0 + counter);
-                GLES10.glBindTexture(GLES10.GL_TEXTURE_2D,textures.get(s).getTextureID());
-               // GlobalVariables.logWithTag("\t\tIn material (activate textures), Activated " + textures.get(s).getUniformName() + " Name: " + textures.get(s).getName());
-               counter++;
-
+        if(textures.isEmpty()) {
+            GLES10.glActiveTexture(GLES10.GL_TEXTURE0 );
+            GLES10.glBindTexture(GLES10.GL_TEXTURE_2D, 0);
         }
+        else {
 
+            //BIND TEXTURES
+            for (String s : textures.keySet()) {
+
+                shader.setInt(s, counter);
+                GLES10.glActiveTexture(GLES10.GL_TEXTURE0 + counter);
+                GLES10.glBindTexture(GLES10.GL_TEXTURE_2D, textures.get(s));
+                // GlobalVariables.logWithTag("\t\tIn material (activate textures), Activated " + textures.get(s).getUniformName() + " Name: " + textures.get(s).getName());
+                counter++;
+
+            }
+        }
         counter  = 0;
         //BIND Cubemaps
         for(String s : cubeMaps.keySet())
@@ -194,9 +199,26 @@ public class Material extends Entity {
             return null;
     }
 
+    public void addTexture(Texture t, String unifornName)
+    {
+        if(t!=null)
+          textures.put(unifornName,t.getTextureID());
+
+
+    }
+
+    public void addTexture(int textureID, String unifornName)
+    {
+
+            textures.put(unifornName,textureID);
+
+
+    }
+
     public void addTexture(Texture t)
     {
-       textures.put(t.getUniformName(),t);
+        if(t!=null)
+            textures.put(t.getUniformName(),t.getTextureID());
 
 
     }

@@ -15,7 +15,7 @@ public class Material_BumpyWall extends Material {
 
         Texture normal = new Texture("wall_normal.jpg","texture_normal0");
 
-        addTexture(diffuse0);
+        addTexture(diffuse0.getTextureID(),"texture_diffuse0");
         addTexture(normal);
         addVec3("color",1,1,1);
         addVec3("specularColor",1,1,1);

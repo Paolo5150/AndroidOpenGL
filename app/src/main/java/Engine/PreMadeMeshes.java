@@ -49,22 +49,22 @@ public class PreMadeMeshes {
                 new Vertex(1.0f,1.0f,0.0f,1.0f,1.0f),
                 new Vertex(-1.0f,1.0f,0.0f,0.0f,1.0f)};
 
-        int[] indices = {0,1,2,2,3,0};
+        int[] indices = {0,1,2,0,2,3};
 
         return new Mesh(vertices,indices,false);
 
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-    public static Mesh getGridMesh(int size)
+    public static Mesh getGridMesh(int sx, int sz)
     {
         ArrayList<Vertex> vertices = new ArrayList<>();
         ArrayList<Integer> indices = new ArrayList<>();
 
 
-        for (float z = 0; z < size; z++)
+        for (float z = 0; z < sz; z++)
         {
-            for (float x = 0; x < size; x++)
+            for (float x = 0; x < sx; x++)
             {
 
                 Vertex v = new Vertex();
@@ -77,8 +77,8 @@ public class PreMadeMeshes {
                 v.getNormal().y = 0.0f;
                 v.getNormal().z = 0.0f;
 
-                v.getTextureCoords().x = x / size;
-                v.getTextureCoords().y = z / size;
+                v.getTextureCoords().x = x / sx;
+                v.getTextureCoords().y = z / sz;
 
 
                 vertices.add(v);
@@ -91,24 +91,24 @@ public class PreMadeMeshes {
         for (int i = 0; i < vertices.size(); i++)
         {
 
-            if (counter >= size - 1)
+            if (counter >= sx  - 1)
             {
                 counter = 0;
                 continue;
             }
 
-            if (i >= vertices.size() - size - 1)
+            if (i >= vertices.size() - sx - 1)
                 break;
 
             //Face 1
 
             indices.add(i);
             indices.add(i + 1);
-            indices.add(i + size + 1);
+            indices.add(i + sx + 1);
 
             //Face 2
-            indices.add(i + size + 1);
-            indices.add(i + size);
+            indices.add(i + sx + 1);
+            indices.add(i + sx);
             indices.add(i);
 
 

@@ -11,15 +11,17 @@ public class Layer {
     private static HashMap<String,Integer> layers;
 
     public static final String DEFAULT = "Default";
-    public static final String TEST = "Test";
-    public static final String OTHER = "Other";
+    public static final String GUI = "GUI";
+    public static final String WATER = "Water";
+    public static final String SKYBOX = "Skybox";
+
 
     public static void Initialize()
     {
         layers = new HashMap<>();
         addLayer(DEFAULT);
-        addLayer(TEST);
-        addLayer(OTHER);
+        addLayer(WATER);
+        addLayer(GUI);
     }
 
     public static void addLayer(String layerName)

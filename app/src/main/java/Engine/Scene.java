@@ -16,11 +16,16 @@ public abstract class Scene extends GameObject {
 
     }
 
+    public void loadScene()
+    {
+        assignOptionalSkyBox();
+    }
+
 
     public void start()
     {
 
-        assignOptionalSkyBox();
+
         for(GameObject g : children)
             if(g.isActive())
                 g.start();

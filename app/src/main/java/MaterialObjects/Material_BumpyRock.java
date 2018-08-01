@@ -19,14 +19,14 @@ public class Material_BumpyRock extends Material{
         Texture normal = new Texture("rock_normal.png","texture_normal0");
 
         addTexture(diffuse1);
-       addTexture(diffuse0);
+        addTexture(diffuse0);
 
        addTexture(normal);
 
 
        addVec3("color",1,1,1);
        addVec3("specularColor",1,1,1);
-       addFloat("shininess",5);
+       addFloat("shininess",16);
 
 
 

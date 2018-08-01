@@ -2,6 +2,9 @@ package Rendering;
 
 import android.opengl.GLES20;
 import android.opengl.GLES30;
+import android.opengl.GLES31;
+import android.opengl.GLES31Ext;
+import android.opengl.GLES32;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 
@@ -114,10 +117,10 @@ public class RenderingEngine {
 
 
         }
-        clearMap();
+
     }
 
-    private void clearMap()
+    public void clearMap()
     {
         ArrayList<Renderer> list;
         for (Integer i : allRenderers.keySet()) {
@@ -135,6 +138,7 @@ public class RenderingEngine {
     {
         GLES20.glClearColor(0.5f,0.5f,0.5f,1);
         GLES30.glEnable(GLES20.GL_DEPTH_TEST);
+
         GLES20.glEnable(GLES20.GL_CULL_FACE);
         GLES20.glCullFace(GLES20.GL_BACK);
         GLES20.glFrontFace(GLES20.GL_CCW);
@@ -148,7 +152,7 @@ public class RenderingEngine {
             currentScene.skyBox.render();
 
 
-        Render(Application.getCurrentScene());
+       //Render(Application.getCurrentScene());
        RenderingEngine.getInstance().renderBatch();
 
 

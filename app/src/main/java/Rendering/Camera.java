@@ -36,8 +36,8 @@ public abstract class Camera extends Component implements IScreenChangeListener{
     public Vector3f target;
     public Vector3f up;
 
-    public float yaw;
-    public float pitch;
+    float yaw;
+    float pitch;
     float roll;
     protected float[] viewM;
     protected float[] projM;
@@ -109,7 +109,7 @@ public abstract class Camera extends Component implements IScreenChangeListener{
     public void addLayer(String name)
     {
 
-       //GlobalVariables.logWithTag("Layer added to camera " + cullingMask.size());
+      //GlobalVariables.logWithTag("Layer added to camera " + name);
         cullingMask.add(Layer.getLayer(name));
     }
 
@@ -153,12 +153,13 @@ public abstract class Camera extends Component implements IScreenChangeListener{
 
     }
 
-    private void updateVectors()
+    public void updateVectors()
     { front.x = (float) Math.cos(Math.toRadians(pitch)) * (float) Math.cos(Math.toRadians(yaw)) ;
         front.y =(float) Math.sin(Math.toRadians(pitch));
         front.z =(float) Math.sin(Math.toRadians(yaw)) * (float) Math.cos(Math.toRadians(pitch));
 
-        right = front.cross(up);
+        right = front.cross(new Vector3f(0,1,0));
+        up = right.cross(front);
         target = Vector3f.add(getGameObject().transform.position, front);}
 
 
@@ -174,6 +175,13 @@ public abstract class Camera extends Component implements IScreenChangeListener{
 
     public Vector3f getPosition() {
         return getGameObject().transform.position;
+    }
+
+    public void setPosition(Vector3f pos)
+    {
+        getGameObject().transform.position = new Vector3f(pos.x, pos.y, pos.z);
+        updateVectors();
+        updateView();
     }
 
     public static Camera getCameraByName(String name)
@@ -192,5 +200,55 @@ public abstract class Camera extends Component implements IScreenChangeListener{
         return cameraType;
     }
 
+    public void setPitchYawRoll(float p, float y, float r)
+    {
+        pitch = p;
+        yaw = y;
+        roll = r;
+        updateVectors();
+        updateView();
+    }
 
+    public void setYaw(float yaw) {
+        this.yaw = yaw;
+        updateVectors();
+        updateView();
+
+    }
+
+    public void setPitch(float pitch) {
+        this.pitch = pitch;
+        updateVectors();
+        updateView();
+    }
+
+    public void setRoll(float roll) {
+        this.roll = roll;
+        updateVectors();
+        updateView();
+    }
+
+    public float getYaw() {
+        return yaw;
+    }
+
+
+
+    public float getPitch() {
+        return pitch;
+    }
+
+
+
+    public float getRoll() {
+        return roll;
+    }
+
+    public float getNear() {
+        return near;
+    }
+
+    public float getFar() {
+        return far;
+    }
 }

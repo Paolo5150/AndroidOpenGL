@@ -15,17 +15,23 @@ import Engine.Input;
 import GUI.GUICanvas;
 import GUI.GUIObject;
 import GUI.GUIQuadCollider;
+import GUI.GUIRenderer;
 import GUI.GUITexture;
 import Listeners.ITouchListener;
 import Rendering.Camera;
+import Rendering.FrameBuffer;
+import Rendering.Layer;
+import Rendering.RenderingEngine;
 import Rendering.Screen;
 import Rendering.Texture;
 import Math.*;
+import ShaderObjects.GUIUVUninvertedShader;
 
 public class AppCanvas extends GameObject implements ITouchListener {
 
     GUITexture leftJ;
     GUITexture rightJ;
+    public static GUITexture topLeft;
     GUIQuadCollider lc;
     GUIQuadCollider rc;
 
@@ -36,6 +42,7 @@ public class AppCanvas extends GameObject implements ITouchListener {
     Vector3f leftDistanceVector;
     Vector3f rightDistanceVector;
     Vector2f touchOffset;
+
 
     float distance = 100;
 
@@ -59,6 +66,15 @@ public class AppCanvas extends GameObject implements ITouchListener {
 
 
 
+
+        topLeft = new GUITexture("Scene",null,canvas);
+        topLeft.setWidth(canvas.getCanvasWidth()/3.0f);
+        topLeft.setHeight(canvas.getCanvasHeight() / 3.0f);
+        topLeft.transform.position = new Vector3f(canvas.getFarLeft() + topLeft.getWidth()/2.0f,canvas.getTop() - topLeft.getHeight()/2.0f,0);
+        topLeft.getComponentByType("Renderer", GUIRenderer.class).getMaterial().setShader(new GUIUVUninvertedShader());
+
+
+
         leftDistanceVector = new Vector3f();
         rightDistanceVector = new Vector3f();
 
@@ -75,6 +91,7 @@ public class AppCanvas extends GameObject implements ITouchListener {
 
         canvas.addGUIObject(leftJ);
         canvas.addGUIObject(rightJ);
+       // canvas.addGUIObject(topLeft);
 
 
         Input.getInstance().addListener(this);
@@ -85,29 +102,32 @@ public class AppCanvas extends GameObject implements ITouchListener {
 
     }
 
+
+
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     public void update()
     {
         super.update();
 
+
+
         leftDistanceVector= Vector3f.subtract(leftJ.transform.position, leftPosition);
 
 
-
         rightDistanceVector = Vector3f.subtract(rightJ.transform.position, rightPosition);
-
-
 
 
         Vector3f toAddFront = Vector3f.multiply(Camera.activeCamera.front, leftDistanceVector.y/100.0f);
         Vector3f toAddRight = Vector3f.multiply(Camera.activeCamera.right, leftDistanceVector.x/100.0f);
         Vector3f toAdd = Vector3f.add(toAddFront,toAddRight);
 
-        toAdd = Vector3f.multiply(toAdd, 10 * EngineTime.getDeltaTimeSeconds());
+        toAdd = Vector3f.multiply(toAdd, 100 * EngineTime.getDeltaTimeSeconds());
 
         Camera.activeCamera.getGameObject().transform.position = Vector3f.add(Camera.activeCamera.getGameObject().transform.position,toAdd);
-        Camera.activeCamera.yaw += rightDistanceVector.x/2.0f * EngineTime.getDeltaTimeSeconds();
-        Camera.activeCamera.pitch += rightDistanceVector.y/2.0f* EngineTime.getDeltaTimeSeconds();
+        Camera.activeCamera.setYaw(Camera.activeCamera.getYaw() + rightDistanceVector.x/2.0f * EngineTime.getDeltaTimeSeconds());
+        Camera.activeCamera.setPitch(Camera.activeCamera.getPitch() + rightDistanceVector.y/ 2.0f* EngineTime.getDeltaTimeSeconds());
 
 
 

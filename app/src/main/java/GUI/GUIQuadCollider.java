@@ -61,10 +61,10 @@ public class GUIQuadCollider extends Collider {
 
     public boolean hitByTouch(float x, float y)
     {
-        if (    x > transform.getWorldLocation().x - (width  / 2.0f) * transform.scale.x &&
-                x < transform.getWorldLocation().x + (width  / 2.0f) * transform.scale.x &&
-                y > transform.getWorldLocation().y - (height / 2.0f) * transform.scale.y &&
-                y < transform.getWorldLocation().y + (height / 2.0f) * transform.scale.y) {
+        if (    x > transform.getWorldPosition().x - (width  / 2.0f) * transform.scale.x &&
+                x < transform.getWorldPosition().x + (width  / 2.0f) * transform.scale.x &&
+                y > transform.getWorldPosition().y - (height / 2.0f) * transform.scale.y &&
+                y < transform.getWorldPosition().y + (height / 2.0f) * transform.scale.y) {
             Input.GUITouched = true;
             return true;
         }

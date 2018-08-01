@@ -1,0 +1,135 @@
+#version 300 es
+precision highp float;
+
+struct Material
+{
+    vec3 color;
+    vec3 specularColor;
+    float shininess;
+    vec2 UVOffset;
+    float UVScale;
+};
+
+struct DirectionalLight
+{
+    vec3 direction;
+    vec3 specularColor;
+    vec3 color;
+};
+
+
+
+out vec4 col;
+
+//Fog
+uniform float fogDensity;
+uniform float fogGradient;
+uniform vec3 fogColor;
+
+//Depth
+//uniform float nearPlane;
+uniform float farPlane;
+
+//From Vertex shader
+in vec2 coords;
+in vec3 norms;
+in vec3 fragpos;
+in DirectionalLight directionalLight;
+in vec3 camPos;
+in vec3 camPosTS;
+in vec3 dirLightTS;
+in vec3 fragposTS;
+in vec4 clipSpace;
+
+uniform vec3 ambientLight;
+
+uniform Material material;
+
+uniform sampler2D texture_refraction;
+uniform sampler2D texture_reflection;
+uniform sampler2D texture_depth;
+
+uniform sampler2D texture_normal0;
+uniform sampler2D texture_normal1;
+
+uniform sampler2D texture_dudv;
+
+
+
+
+void main()
+{
+    float _UVScale = material.UVScale;
+    vec2 _UVOffset = material.UVOffset;
+    vec2 ndc = ((clipSpace.xy)/clipSpace.w)/2.0 + 0.5;
+
+    //Create distortion
+    vec2 dudvOffset = (texture(texture_dudv, (coords + _UVOffset)* _UVScale).xy) * 2.0 - 1.0;
+    vec2 dudvOffset2 = (texture(texture_dudv, (coords + vec2(_UVOffset.x*2.0,-_UVOffset.y*2.0)) * _UVScale).xy) * 2.0 - 1.0;
+    vec2 distortion = 0.002f * dudvOffset ;
+    vec2 distortion2 = 0.004f * dudvOffset2 ;
+    vec2 totalDistortion = distortion + distortion2;
+
+
+    vec3 refractionColor = texture(texture_refraction,(ndc + totalDistortion) ).xyz;
+    vec3 reflectionColor = texture(texture_reflection, vec2(ndc.x, 1.0 - ndc.y) + totalDistortion).xyz;
+
+    vec3 normalFromMap = texture(texture_normal0,(coords  + totalDistortion) * _UVScale ).xyz;
+    vec3 normalFromMap2 = texture(texture_normal1,(coords  - totalDistortion) * _UVScale).xyz;
+
+
+    normalFromMap = normalize(normalFromMap * 2.0 -1.0);
+    normalFromMap2 = normalize(normalFromMap2 * 2.0 -1.0);
+
+
+
+    //Diffuse lighting
+    vec3 diffuse;
+    float d = max(dot(normalize(norms),-normalize(directionalLight.direction)),0.0);
+    diffuse = directionalLight.color * d;
+
+    //Specular lighting
+    vec3 specular;
+    vec3 fragToCamTS = normalize(camPosTS - fragposTS);
+
+    vec3 ref = reflect(normalize(dirLightTS), normalize(normalFromMap));
+    d = pow(max(dot(normalize(ref), fragToCamTS) * 1.01,0.0f),material.shininess);
+
+     vec3 ref2 = reflect(normalize(dirLightTS), normalize(normalFromMap2));
+     float d2 = pow(max(dot(normalize(ref2), fragToCamTS) * 1.08,0.0f),material.shininess);
+
+    specular = (d + d2) * material.specularColor ;
+
+
+    vec3 fragToCam = normalize(camPos - fragpos);
+    float mixValue = dot(fragToCam,norms);
+
+
+    vec3 reflectionRefractionMix = mix(reflectionColor,refractionColor,mixValue);
+
+    vec3 total = reflectionRefractionMix * material.color * (ambientLight + diffuse + specular);
+
+    col = vec4(total,1.0);
+
+    //FOG
+        float distance = length(fragpos - camPos);
+        float visibility = exp(-pow((distance * fogDensity), fogGradient));
+        visibility = clamp(visibility, 0.0,1.0);
+        col = mix(vec4(fogColor,1.0), col,visibility);
+
+//float nearPlane = 0.1f;
+//float farPlane = 2000.0f;
+//float floorDepth = (texture(texture_depth,ndc).r);
+//float floorDistance = 2.0 * nearPlane * farPlane / (farPlane + nearPlane - (2.0 * floorDepth - 1.0) * (farPlane - nearPlane));
+//floorDistance = nearPlane * farPlane / (farPlane + floorDepth * (nearPlane - farPlane));
+//
+//float waterDepth = gl_FragCoord.z;
+//float waterDistance = 2.0 * nearPlane * farPlane / (farPlane + nearPlane - (2.0 * waterDepth - 1.0) * (farPlane - nearPlane));
+//
+//float wd = floorDistance - waterDistance;
+//
+//
+//col = vec4(wd/50.0,wd/50.0,wd/50.0,1.0);
+
+
+}

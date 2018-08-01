@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.os.Build;
+import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
@@ -30,6 +31,7 @@ public class Utils {
     public static Activity activity;
     public static Resources resources;
     private static Random rand;
+    public static Handler handler;
 
 
 
@@ -38,6 +40,7 @@ public class Utils {
     {
         activity = act;
         resources = res;
+        handler = new Handler();
 
 
         rand = new Random();

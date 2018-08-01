@@ -9,6 +9,7 @@ import Engine.Component;
 import Engine.Entity;
 import Engine.GameObject;
 import Math.*;
+import Rendering.Layer;
 import Rendering.RenderingEngine;
 
 public class GUIObject extends GameObject {
@@ -29,6 +30,7 @@ public class GUIObject extends GameObject {
         guiCanvasParent = canvas;
 
         transform.setParent(guiCanvasParent.getGameObject().transform);
+        setLayer(Layer.GUI);
 
         addComponent(renderer);
 

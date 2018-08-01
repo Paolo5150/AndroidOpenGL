@@ -50,6 +50,7 @@ public class RenderUtils {
         Vector2f res = new Vector2f();
         res.x = ((x*2.0f) / Screen.SCREEN_WIDTH)-1;
         res.y = -(((y*2.0f) / Screen.SCREEN_HEIGHT)-1);
+        //GlobalVariables.logWithTag("Unprojected : " + res.x + " Y: " + res.y );
         return res;
     }
 }

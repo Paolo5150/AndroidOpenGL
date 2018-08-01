@@ -1,5 +1,8 @@
 package Components;
 
+import android.os.Build;
+import android.support.annotation.RequiresApi;
+
 import com.blogspot.androidcanteen.androidopengl.GlobalVariables;
 
 import Engine.Component;
@@ -19,7 +22,8 @@ public class PhysicsBody extends Component {
 
     GameObject obj;
 
-    public PhysicsBody( GameObject objectBelongingTo) {
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+    public PhysicsBody(GameObject objectBelongingTo) {
 
         super("PhysicsBody", objectBelongingTo);
 

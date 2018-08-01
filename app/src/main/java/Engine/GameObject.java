@@ -91,8 +91,10 @@ public class GameObject extends Entity{
 
         for(String key : components.keySet())
         {
-            for(Component c : components.get(key))
-                c.Update();
+            for(Component c : components.get(key)) {
+                if (c.isActive())
+                    c.Update();
+            }
         }
 
         for(GameObject go : children)
@@ -110,6 +112,7 @@ public class GameObject extends Entity{
         for(String key : components.keySet())
         {
             for(Component c : components.get(key))
+                if(c.isActive())
                 c.lateUpdate();
         }
 
@@ -125,6 +128,7 @@ public class GameObject extends Entity{
         for(String key : components.keySet())
         {
             for(Component c : components.get(key))
+                if(c.isActive())
                 c.Render();
         }
 
@@ -184,7 +188,7 @@ public class GameObject extends Entity{
         }
 
         onAddChild(go);
-        Application.getCurrentScene().rearrangeSceneHierarchy();
+        Application.getInstance().getCurrentScene().rearrangeSceneHierarchy();
 
     }
 

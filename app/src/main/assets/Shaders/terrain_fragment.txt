@@ -1,0 +1,139 @@
+#version 300 es
+precision highp float;
+
+struct Material
+{
+    vec3 color;
+    vec3 specularColor;
+    float shininess;
+    vec2 UVOffset;
+    float UVScale;
+};
+
+struct DirectionalLight
+{
+    vec3 direction;
+    vec3 specularColor;
+    vec3 color;
+};
+
+
+
+out vec4 col;
+
+//From Vertex shader
+in vec2 coords;
+in vec3 norms;
+in vec3 fragpos;
+in DirectionalLight directionalLight;
+in vec3 camPos;
+in vec3 camPosTS;
+in vec3 dirLightTS;
+in vec3 fragposTS;
+in vec3 vertColor;
+
+
+//Fog
+uniform float fogDensity;
+uniform float fogGradient;
+uniform vec3 fogColor;
+
+
+in vec3 modelS;
+uniform float planeHeight;
+uniform int activateClipPlane;
+uniform int planeSide;
+
+uniform vec3 ambientLight;
+
+uniform Material material;
+
+uniform sampler2D texture_grass;
+uniform sampler2D texture_rock;
+
+uniform sampler2D texture_normal0;
+uniform sampler2D texture_sand;
+uniform sampler2D texture_blend;
+
+
+void applyClipPlane()
+{
+//Clip plane
+    if(activateClipPlane == 1)
+    {
+        if(planeSide == 1)
+        {
+            if(modelS.y > planeHeight)
+                discard;
+        }
+        else if(planeSide == -1)
+        {
+          if(modelS.y < planeHeight)
+                        discard;
+        }
+
+    }
+}
+
+void main()
+{
+
+
+    applyClipPlane();
+
+    float _UVScale = material.UVScale;
+    vec2 _UVOffset = material.UVOffset;
+
+    vec3 texGrass = texture(texture_grass,(coords + _UVOffset) * _UVScale).xyz;
+    vec3 texSand = texture(texture_sand, coords * _UVScale).xyz;
+    vec3 texRock = texture(texture_rock, coords * _UVScale*2.0).xyz;
+    vec3 blendColor = texture(texture_blend, coords).xyz;
+
+
+
+    vec3 normalFromMap = texture(texture_normal0,(coords ) * _UVScale*4.0).xyz;
+    normalFromMap = normalize(normalFromMap*2.0 -1.0);
+
+     float mixValue =  clamp(fragpos.y / 5.0,0.0,1.0);
+
+
+    //Diffuse lighting
+    vec3 diffuse;
+    float d = max(dot(normalize(norms),-normalize(directionalLight.direction)),0.0);
+    float dNormalMap = max(dot(normalize(normalFromMap),-normalize(dirLightTS)),0.0);
+
+    float t = mix(d,dNormalMap,blendColor.r);
+
+    diffuse = directionalLight.color * d;
+
+    //Specular lighting
+    vec3 specular;
+    vec3 fragToCamTS = normalize(camPosTS - fragposTS);
+
+    vec3 ref = reflect(normalize(dirLightTS), normalize(normalFromMap));
+    d = pow(max(dot(normalize(ref), fragToCamTS) * 1.01f,0.0f),material.shininess);
+
+    specular = d * material.specularColor ;
+
+
+     specular *= blendColor.r; // Specular only for the rock
+
+
+
+
+    vec3 tm = mix(texSand,texGrass,mixValue) ; //Mix sand and normal color at water height
+    tm = mix(tm,texRock,blendColor.r);
+
+    vec3 total = tm * material.color * (ambientLight + diffuse + specular);
+
+    col = vec4(total,1.0);
+
+    //FOG
+    float distance = length(fragpos - camPos);
+    float visibility = exp(-pow((distance * fogDensity), fogGradient));
+    visibility = clamp(visibility, 0.0,1.0);
+    col = mix(vec4(fogColor,1.0), col,visibility) * vec4(vertColor,1.0);
+
+
+}
+

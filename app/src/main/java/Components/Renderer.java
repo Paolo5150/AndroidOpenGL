@@ -72,40 +72,41 @@ public abstract class Renderer extends Component{
     public void Render()
     {
         //renderingCamera = Camera.activeCamera;
-
-        activateGLSpecials();
-        //Check Layer
-        for(Integer i : renderingCamera.cullingMask)
-        {
-            if(i == getGameObject().getLayer()) {
-               // GlobalVariables.logWithTag("Rendering " + getGameObject().getName());
-                prepareShaderAndMAterial();
-                if(renderMode == RENDER_MODE.FILL)
-                    mesh.render();
-                else if (renderMode == RENDER_MODE.LINES)
-                    mesh.renderLines();
+        if(renderingCamera.isActive()) {
+            activateGLSpecials();
+            //Check Layer
+            for (Integer i : renderingCamera.cullingMask) {
+                if (i == getGameObject().getLayer()) {
+                    // GlobalVariables.logWithTag("Rendering " + getGameObject().getName());
+                    prepareShaderAndMAterial();
+                    if (renderMode == RENDER_MODE.FILL)
+                        mesh.render();
+                    else if (renderMode == RENDER_MODE.LINES)
+                        mesh.renderLines();
+                }
             }
+            deactivateGLSpecials();
         }
-    deactivateGLSpecials();
 
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void RenderUnactivated()
     {
-        activateGLSpecials();
-        for(Integer i : renderingCamera.cullingMask)
-        {
-            if(i == getGameObject().getLayer()) {
+        if(renderingCamera.isActive()) {
+            activateGLSpecials();
+            for (Integer i : renderingCamera.cullingMask) {
+                if (i == getGameObject().getLayer()) {
 
-                if(renderMode == RENDER_MODE.FILL)
-                mesh.render();
-                else if (renderMode == RENDER_MODE.LINES)
+                    if (renderMode == RENDER_MODE.FILL)
+                        mesh.render();
+                    else if (renderMode == RENDER_MODE.LINES)
                         mesh.renderLines();
 
+                }
             }
+            deactivateGLSpecials();
         }
-        deactivateGLSpecials();
     }
 
 

@@ -9,7 +9,7 @@ import Math.Vector3f;
 
 public class Vertex {
 
-    public static final int SIZE = 14;
+    public static final int SIZE = 17;
     public static final int BYTES = SIZE * Float.BYTES;
 
     private Vector3f position;
@@ -17,6 +17,7 @@ public class Vertex {
     private Vector3f normal;
     private Vector3f tangent;
     private Vector3f biTangent;
+    private Vector3f color;
 
     public Vertex()
     {
@@ -55,6 +56,7 @@ public class Vertex {
         textureCoords = new Vector2f();
         tangent = new Vector3f();
         biTangent = new Vector3f();
+        color = new Vector3f(1,1,1);
     }
 
     public Vector3f getPosition() {
@@ -95,5 +97,13 @@ public class Vertex {
 
     public Vector3f getBiTangent() {
         return biTangent;
+    }
+
+    public Vector3f getColor() {
+        return color;
+    }
+
+    public void setColor(Vector3f color) {
+        this.color = color;
     }
 }

@@ -1,5 +1,8 @@
 package Scenes;
 
+import android.os.Build;
+import android.support.annotation.RequiresApi;
+
 import com.blogspot.androidcanteen.androidopengl.GlobalVariables;
 
 import Components.Behavior;
@@ -23,6 +26,7 @@ public class CharizardBehavior extends Behavior {
     //SphereCollider collider;
     Material mat;
     Vector2f offset;
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public CharizardBehavior(GameObject o)
     {
         super("CharizardBehavior",o);

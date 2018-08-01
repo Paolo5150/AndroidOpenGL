@@ -20,6 +20,7 @@ public class ShaderManager {
         SkyBoxShader skyBoxShader = new SkyBoxShader();
         GUIShader guiShader = new GUIShader();
         LightNoNormalShader lightNoNormalShader = new LightNoNormalShader();
+        TerrainShader terrainShader = new TerrainShader();
 
 
 
@@ -28,6 +29,7 @@ public class ShaderManager {
         allShaders.put(basicShader.getName(),basicShader);
         allShaders.put(skyBoxShader.getName(),skyBoxShader);
         allShaders.put(guiShader.getName(),guiShader);
+        allShaders.put(terrainShader.getName(),terrainShader);
 
 
     }

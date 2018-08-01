@@ -12,9 +12,16 @@ public class GUITexture extends GUIObject {
     public GUITexture(String name, Texture texture, GUICanvas c)
     {
         super(name,c);
+
+
         renderer.getMaterial().addTexture(texture);
 
         addComponent(new GUIQuadCollider(this));
 
+    }
+
+    public void assignTexture(Texture texture)
+    {
+        renderer.getMaterial().addTexture(texture);
     }
 }

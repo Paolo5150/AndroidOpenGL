@@ -2,13 +2,12 @@ package Application;
 
 import android.app.Activity;
 import android.os.Build;
+import android.os.Handler;
 import android.support.annotation.RequiresApi;
+import android.widget.Toast;
 
-import Engine.Input;
 import Engine.Scene;
-import Math.Vector2f;
-import Rendering.Lighting;
-import Rendering.Screen;
+import Engine.Utils;
 
 /**
  * Created by Paolo on 25/06/2018.
@@ -16,12 +15,11 @@ import Rendering.Screen;
 
 public class Application{
 
-    private Activity activity;
-    public static boolean running;
 
 
 
-    private static Scene currentScene = null;
+    private  Scene currentScene = null;
+
 
 
     private static Application instance;
@@ -31,7 +29,7 @@ public class Application{
         if(instance == null)
             instance = new Application();
 
-        running = true;
+
 
         return  instance;
     }
@@ -66,14 +64,26 @@ public class Application{
 
     }
 
-    public static Scene getCurrentScene() {
+    public  Scene getCurrentScene() {
         return currentScene;
     }
 
-    public static void setCurrentScene(Scene currentScene) {
-        currentScene.stop();
-        Application.currentScene = currentScene;
-        currentScene.start();
+    public  void setCurrentScene(Scene newScene) {
+        if(currentScene!=null)
+         currentScene.stop();
+
+        currentScene = newScene;
+
+        Utils.handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(Utils.activity,"Loading scene...",Toast.LENGTH_LONG).show();
+            }
+        });
+
+        currentScene.loadScene();
+
+       currentScene.start();
     }
 
 }
