@@ -15,7 +15,7 @@ public class SkyBox extends GameObject {
         getComponent("SkyBoxRenderer", SkyBoxRenderer.class).getMaterial().addCubeMap(cubeMap);
 
         CubeMap additionalCubeMap = new CubeMap("SunSet","sky2");
-        getComponent("SkyBoxRenderer", SkyBoxRenderer.class).getMaterial().addCubeMap(additionalCubeMap);
+     //   getComponent("SkyBoxRenderer", SkyBoxRenderer.class).getMaterial().addCubeMap(additionalCubeMap);
 
     }
 }

@@ -1,0 +1,124 @@
+#version 300 es
+precision highp float;
+
+struct Material
+{
+    vec3 color;
+    vec3 specularColor;
+    float shininess;
+    vec2 UVOffset;
+    float UVScale;
+};
+
+struct DirectionalLight
+{
+    vec3 direction;
+    vec3 specularColor;
+    vec3 color;
+};
+
+
+
+out vec4 col;
+
+//Fog
+uniform float fogDensity;
+uniform float fogGradient;
+uniform vec3 fogColor;
+
+//From Vertex shader
+in vec2 coords;
+in vec3 norms;
+in vec3 fragpos;
+in DirectionalLight directionalLight;
+in vec3 camPos;
+in vec3 camPosTS;
+in vec3 dirLightTS;
+in vec3 fragposTS;
+
+
+in vec3 modelS;
+uniform float planeHeight;
+uniform int activateClipPlane;
+uniform int planeSide;
+
+uniform vec3 ambientLight;
+
+uniform Material material;
+
+
+
+uniform sampler2D texture_normal0;
+
+uniform samplerCube env;
+
+void applyClipPlane()
+{
+//Clip plane
+    if(activateClipPlane == 1)
+    {
+        if(planeSide == 1)
+        {
+            if(modelS.y > planeHeight)
+                discard;
+        }
+        else if(planeSide == -1)
+        {
+          if(modelS.y < planeHeight)
+                        discard;
+        }
+
+    }
+}
+
+
+
+
+void main()
+{
+
+    applyClipPlane();
+
+    float _UVScale = material.UVScale;
+    vec2 _UVOffset = material.UVOffset;
+
+
+    vec3 normalFromMap = texture(texture_normal0,(coords + _UVOffset) * _UVScale).xyz;
+    normalFromMap = normalize(normalFromMap*2.0 -1.0);
+
+
+    //Diffuse lighting
+    vec3 diffuse;
+    float d = max(dot(normalFromMap,-normalize(directionalLight.direction)),0.0);
+    diffuse = directionalLight.color * d;
+
+    //Specular lighting
+    vec3 specular;
+    vec3 fragToCamTS = normalize(camPosTS - fragposTS);
+
+    vec3 ref = reflect(normalize(dirLightTS), normalize(normalFromMap));
+    d = pow(max(dot(normalize(ref), fragToCamTS),0.0f),material.shininess);
+
+    specular = d * material.specularColor ;
+
+    //Environment
+    vec3 camToFrag = normalize(fragpos - camPos);
+    vec3 reflection = reflect(camToFrag,normalize(norms));
+    vec3 envColor = texture(env,reflection).rgb;
+
+
+
+
+    vec3 total =  material.color * (ambientLight + diffuse + specular);
+    total = envColor;
+
+    col = vec4(total,1.0);
+       //FOG
+        float distance = length(fragpos - camPos);
+        float visibility = exp(-pow((distance * fogDensity), fogGradient));
+        visibility = clamp(visibility, 0.0,1.0);
+        col = mix(vec4(fogColor,1.0), col,visibility);
+
+
+}
+

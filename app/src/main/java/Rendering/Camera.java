@@ -81,6 +81,7 @@ public abstract class Camera extends Component implements IScreenChangeListener{
     if(activeCamera == null)
         activeCamera = this;
 
+    updateVectors();
     //Register to screen change listener
         MainRenderer.getInstance().registerScreenChangeListener(this);
     }
@@ -154,9 +155,16 @@ public abstract class Camera extends Component implements IScreenChangeListener{
     }
 
     public void updateVectors()
-    { front.x = (float) Math.cos(Math.toRadians(pitch)) * (float) Math.cos(Math.toRadians(yaw)) ;
+    {
+
+        /*front.x = (float) Math.cos(Math.toRadians(pitch)) * (float) Math.cos(Math.toRadians(yaw)) ;
         front.y =(float) Math.sin(Math.toRadians(pitch));
-        front.z =(float) Math.sin(Math.toRadians(yaw)) * (float) Math.cos(Math.toRadians(pitch));
+        front.z =(float) Math.sin(Math.toRadians(yaw)) * (float) Math.cos(Math.toRadians(pitch));*/
+
+        front.x = Vector3f.multiply(new Vector3f(1,0,0),(float)Math.cos(Math.toRadians(yaw))).x;
+        front.y = Vector3f.multiply(new Vector3f(0,1,0),(float)Math.sin(Math.toRadians(pitch))).y;
+        front.z = Vector3f.multiply(new Vector3f(0,0,1),(float)Math.sin(Math.toRadians(yaw))).z;
+
 
         right = front.cross(new Vector3f(0,1,0));
         up = right.cross(front);

@@ -13,8 +13,7 @@ public class MeshRenderer extends Renderer {
     public MeshRenderer(Mesh mesh, Material material, GameObject o) {
         super("MeshRenderer",mesh,material,o);
 
-        //Override, but not needed
-        renderingCamera = Camera.activeCamera;
+    renderingCamera = Camera.activeCamera;
 
 
     }

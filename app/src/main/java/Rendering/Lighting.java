@@ -6,7 +6,7 @@ public class Lighting {
     {
         directionalLight = new DirectionalLight(new Vector3f(1,1,1),
                                                 new Vector3f(0,0,0),
-                                                new Vector3f(0,-1,-1));
+                                                new Vector3f(1,-1,0));
 
         ambientLight = new Vector3f(0.2f,0.2f,0.2f);
        clipPlanePosition = new Vector3f();

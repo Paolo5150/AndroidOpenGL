@@ -21,7 +21,7 @@ uniform samplerCube sky2;
 void main()
 {
 
-    vec3 texCol = texture(sky2,coords).xyz;
+    vec3 texCol = texture(sky,coords).xyz;
     col = vec4(texCol,1.0);
     //col = vec4(1,0,0,1);
 

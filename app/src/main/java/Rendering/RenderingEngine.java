@@ -45,18 +45,11 @@ public class RenderingEngine {
     }
 
 
+
+
     public void addToBatch(Renderer rend)
     {
-       /* if(allRenderers.containsKey(rend.getMaterial()))
-        {
-            allRenderers.get(rend.getMaterial()).add(rend);
-        }
-        else
-        {
-            ArrayList<Renderer> l = new ArrayList<>();
-            l.add(rend);
-            allRenderers.put(rend.getMaterial(),l);
-        }*/
+
        Camera c = rend.getRenderingCamera();
        if(allRenderers.containsKey(c.depth))
        {

@@ -71,7 +71,7 @@ public abstract class Renderer extends Component{
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void Render()
     {
-        //renderingCamera = Camera.activeCamera;
+        renderingCamera = Camera.activeCamera; //Leave this one
         if(renderingCamera.isActive()) {
             activateGLSpecials();
             //Check Layer
@@ -90,9 +90,32 @@ public abstract class Renderer extends Component{
 
     }
 
+
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+    public void RenderUnactivated(Camera cam)
+    {
+
+        if(cam.isActive()) {
+            activateGLSpecials();
+            for (Integer i : cam.cullingMask) {
+                if (i == getGameObject().getLayer()) {
+
+                    if (renderMode == RENDER_MODE.FILL)
+                        mesh.render();
+                    else if (renderMode == RENDER_MODE.LINES)
+                        mesh.renderLines();
+
+                }
+            }
+            deactivateGLSpecials();
+        }
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void RenderUnactivated()
     {
+        renderingCamera = Camera.activeCamera; //Leave this one
         if(renderingCamera.isActive()) {
             activateGLSpecials();
             for (Integer i : renderingCamera.cullingMask) {

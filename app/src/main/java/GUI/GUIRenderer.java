@@ -37,6 +37,7 @@ public class GUIRenderer extends Renderer {
     @Override
     public void activateGLSpecials() {
         super.activateGLSpecials();
+
         GLES30.glEnable(GLES20.GL_BLEND);
         GLES30.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA);
     }

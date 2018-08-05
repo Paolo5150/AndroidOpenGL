@@ -21,6 +21,7 @@ public class ShaderManager {
         GUIShader guiShader = new GUIShader();
         LightNoNormalShader lightNoNormalShader = new LightNoNormalShader();
         TerrainShader terrainShader = new TerrainShader();
+        ReflectiveShader reflectiveShader = new ReflectiveShader();
 
 
 
@@ -30,7 +31,7 @@ public class ShaderManager {
         allShaders.put(skyBoxShader.getName(),skyBoxShader);
         allShaders.put(guiShader.getName(),guiShader);
         allShaders.put(terrainShader.getName(),terrainShader);
-
+        allShaders.put(reflectiveShader.getName(),reflectiveShader);
 
     }
 

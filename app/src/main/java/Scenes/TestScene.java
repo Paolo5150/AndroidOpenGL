@@ -29,6 +29,7 @@ import Engine.PreMadeMeshes;
 import GUI.GUICanvas;
 import GUI.GUITexture;
 import Listeners.ITouchListener;
+import MaterialObjects.Material_Reflective;
 import Physics.PhysicsGlobals;
 import Physics.Ray;
 import Physics.RayCast;
@@ -38,6 +39,7 @@ import Engine.Scene;
 import PreMadeGameObjects.Water;
 import Rendering.Camera;
 import Rendering.CubeMap;
+import Rendering.CubeMapRenderer;
 import Rendering.Layer;
 import Rendering.MaterialManager;
 import Rendering.Mesh;
@@ -62,6 +64,8 @@ public class TestScene extends Scene implements ITouchListener {
 
 
     GameObject can;
+
+    CubeMapRenderer cmr;
 
 
 
@@ -95,7 +99,7 @@ public class TestScene extends Scene implements ITouchListener {
 
         sphere = new GameObject("Sphere");
         sphere.addComponent(new CharizardBehavior(sphere));
-        sphere.addComponent(new MeshRenderer(PreMadeMeshes.getMeshByName("Sphere"), MaterialManager.getMaterialByName("Material_BumpyWall"), sphere));
+        sphere.addComponent(new MeshRenderer(PreMadeMeshes.getMeshByName("Sphere"), new Material_Reflective(), sphere));
        // sphere.addComponent(new PhysicsBody(sphere));
 
 
@@ -119,6 +123,7 @@ public class TestScene extends Scene implements ITouchListener {
         addChild(sphere);
        addChild(terrain);
        addChild(water);
+
 
         //printHierarchy();
 
@@ -144,8 +149,8 @@ public class TestScene extends Scene implements ITouchListener {
         }
 
         terrain.mesh.UpdateVertices(terrain.mesh.getVertices(), terrain.mesh.getIndices());*/
-
-
+        printHierarchy();
+       //
 
     }
 
@@ -164,13 +169,32 @@ public class TestScene extends Scene implements ITouchListener {
 
     }
 
+    @TargetApi(Build.VERSION_CODES.O)
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+    public void lateUpdate()
+    {
+
+        super.lateUpdate();
+
+        // sphere.getComponent("SphereCollider",SphereCollider.class).collideWithTerrain(terrain);
+        //terrain.mesh.UpdateVertices(terrain.mesh.getVertices(), terrain.mesh.getIndices());
+        cmr.renderEnvironment();
 
 
 
+    }
+
+
+
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     public void assignOptionalSkyBox() {
-        CubeMap c = new CubeMap("ClearSky","sky");
-        skyBox = new SkyBox(c);
+        CubeMap c = new CubeMap("SunSet","sky");
+
+        cmr = new CubeMapRenderer(256);
+
+        skyBox = new SkyBox(cmr.cubeMap);
     }
 
 
